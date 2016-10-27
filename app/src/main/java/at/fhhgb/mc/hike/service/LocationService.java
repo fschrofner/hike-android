@@ -10,14 +10,17 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
+import org.greenrobot.eventbus.EventBus;
+
 import at.fhhgb.mc.hike.app.AppClass;
+import at.fhhgb.mc.hike.model.events.LocationUpdateEvent;
 import at.flosch.logwrap.Log;
 
 /**
  * @author Florian Schrofner
  */
 
-public class LocationService extends Service implements LocationListener {
+public class LocationService extends Service implements LocationListener{
     private final static String TAG = LocationService.class.getSimpleName();
     private final static int LOCATION_UPDATE_MIN_TIME = 10000;
     private final static float LOCATION_UPDATE_MIN_DISTANCE = 10;
@@ -53,6 +56,11 @@ public class LocationService extends Service implements LocationListener {
     @Override
     public void onLocationChanged(Location location) {
         Log.d(TAG, "received location update: " + location.getLatitude() + "," + location.getLongitude());
+        sendLocationUpdate(location);
+    }
+
+    private void sendLocationUpdate(Location location){
+        EventBus.getDefault().post(new LocationUpdateEvent(location));
     }
 
     @Override
