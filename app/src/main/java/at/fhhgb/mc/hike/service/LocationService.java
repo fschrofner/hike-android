@@ -57,6 +57,7 @@ public class LocationService extends Service implements LocationListener{
     public void onLocationChanged(Location location) {
         Log.d(TAG, "received location update: " + location.getLatitude() + "," + location.getLongitude());
         sendLocationUpdate(location);
+        //TODO: save into database
     }
 
     private void sendLocationUpdate(Location location){
