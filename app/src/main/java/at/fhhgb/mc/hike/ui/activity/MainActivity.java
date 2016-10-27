@@ -1,4 +1,4 @@
-package at.fhhgb.mc.hike.activity;
+package at.fhhgb.mc.hike.ui.activity;
 
 import android.Manifest;
 import android.content.Intent;
@@ -7,25 +7,21 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-
 import at.fhhgb.mc.hike.BuildConfig;
 import at.fhhgb.mc.hike.R;
 import at.fhhgb.mc.hike.app.AppClass;
-import at.fhhgb.mc.hike.model.events.LocationUpdateEvent;
 import at.fhhgb.mc.hike.service.LocationService;
+import at.fhhgb.mc.hike.ui.fragment.MapFragment;
 import at.flosch.logwrap.Log;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends  GlobalActivity{
     private final String TAG = MainActivity.class.getSimpleName();
     private final static int LOCATION_PERMISSION_REQUEST_CODE = 4242;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setView(R.layout.activity_main);
 
         //enable logging for debug builds
         if (BuildConfig.DEBUG) {
@@ -40,23 +36,8 @@ public class MainActivity extends AppCompatActivity{
         } else {
             requestLocationPermission();
         }
-    }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        EventBus.getDefault().register(this);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
-    }
-
-    @Subscribe
-    public void onLocationUpdated(LocationUpdateEvent event){
-        Log.d(TAG, "received location update from service");
+        addFragment(MapFragment.newInstance(), false);
     }
 
     private void startLocationService(){
