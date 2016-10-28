@@ -1,5 +1,6 @@
 package at.fhhgb.mc.hike.ui.fragment;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -58,22 +59,6 @@ public class MapFragment extends GlobalFragment {
         return new MapFragment();
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        if(savedInstanceState == null){
-            Log.d(TAG, "no saved instance state");
-        } else {
-            Log.d(TAG, "saved instance state available");
-        }
-
-        if(savedInstanceState != null && savedInstanceState.containsKey(HIKE_UNIQUE_ID)){
-            Log.d(TAG, "recreated map fragment, retrieved unique id");
-            mHikeUniqueId = savedInstanceState.getLong(HIKE_UNIQUE_ID);
-        }
-    }
-
     private void loadPathFromDatabase(){
         try {
             HikeRoute hikeRoute = Database.getHikeRouteFromDatabase(mHikeUniqueId);
@@ -99,16 +84,30 @@ public class MapFragment extends GlobalFragment {
         outState.putLong(HIKE_UNIQUE_ID, mHikeUniqueId);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if(mHikeUniqueId == Long.MIN_VALUE){
+            Log.d(TAG, "new hike");
+            setupForNewHike();
+        } else {
+            Log.d(TAG, "resuming ongoing hike");
+            setupForOngoingHike();
+        }
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "on create view called");
         setView(R.layout.fragment_map, inflater, container);
         setupMap();
 
-        if(mHikeUniqueId == Long.MIN_VALUE){
-            setupForNewHike();
+        if(savedInstanceState != null && savedInstanceState.containsKey(HIKE_UNIQUE_ID)){
+            mHikeUniqueId = savedInstanceState.getLong(HIKE_UNIQUE_ID);
         } else {
-            setupForExistingHike();
+            mHikeUniqueId = Long.MIN_VALUE;
         }
 
         return mRootView;
@@ -116,7 +115,7 @@ public class MapFragment extends GlobalFragment {
 
     private void setupForNewHike(){
         Log.d(TAG, "setup for new hike");
-        mHikeUniqueId = Helper.generateUniqueId();
+        mHikeUniqueId = Long.MIN_VALUE;
         mPath = new ArrayList<>();
         showStartButton();
     }
@@ -129,6 +128,7 @@ public class MapFragment extends GlobalFragment {
             public void onClick(View view) {
                 clearMap();
                 showStopButton();
+                mHikeUniqueId = Helper.generateUniqueId();
                 EventBus.getDefault().post(new StartHikeTrackingEvent(mHikeUniqueId));
             }
         });
@@ -151,8 +151,9 @@ public class MapFragment extends GlobalFragment {
         mMapView.invalidate();
     }
 
-    private void setupForExistingHike(){
+    private void setupForOngoingHike(){
         Log.d(TAG, "setup for existing hike");
+        clearMap();
         loadPathFromDatabase();
         showStopButton();
     }

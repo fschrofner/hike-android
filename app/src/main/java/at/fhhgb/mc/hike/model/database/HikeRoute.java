@@ -21,6 +21,10 @@ public class HikeRoute implements Serializable {
         return mUniqueId;
     }
 
+    public HikeRoute(){
+        super();
+    }
+
     public HikeRoute(long uniqueId) {
         mUniqueId = uniqueId;
     }
