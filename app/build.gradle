@@ -30,6 +30,8 @@ dependencies {
     compile 'org.greenrobot:eventbus:3.0.0'
     compile 'org.osmdroid:osmdroid-android:5.5:release@aar'
     compile 'com.github.MKergall:osmbonuspack:6.0'
+    compile 'com.snappydb:snappydb-lib:0.5.2'
+    compile 'com.esotericsoftware.kryo:kryo:2.24.0'
     testCompile 'junit:junit:4.12'
     apt 'com.jakewharton:butterknife-compiler:8.4.0'
 }

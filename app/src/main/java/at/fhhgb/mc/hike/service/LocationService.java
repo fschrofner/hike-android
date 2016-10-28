@@ -13,6 +13,10 @@ import android.support.annotation.Nullable;
 import org.greenrobot.eventbus.EventBus;
 
 import at.fhhgb.mc.hike.app.AppClass;
+import at.fhhgb.mc.hike.app.Database;
+import at.fhhgb.mc.hike.model.database.DatabaseException;
+import at.fhhgb.mc.hike.model.database.HikeRoute;
+import at.fhhgb.mc.hike.model.database.HikeTimestamp;
 import at.fhhgb.mc.hike.model.events.LocationUpdateEvent;
 import at.flosch.logwrap.Log;
 
@@ -24,13 +28,20 @@ public class LocationService extends Service implements LocationListener{
     private final static String TAG = LocationService.class.getSimpleName();
     private final static int LOCATION_UPDATE_MIN_TIME = 10000;
     private final static float LOCATION_UPDATE_MIN_DISTANCE = 10;
-
     private LocationManager mLocationManager;
+    private HikeRoute mHikeRoute;
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        EventBus.getDefault().register(this);
         return null;
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        EventBus.getDefault().unregister(this);
+        return super.onUnbind(intent);
     }
 
     @Override
@@ -39,6 +50,8 @@ public class LocationService extends Service implements LocationListener{
         Log.d(TAG, "location service created");
         startLocationTracking();
     }
+
+
 
     private void startLocationTracking() {
         if(AppClass.getInstance().checkLocationPermission()){
@@ -50,14 +63,24 @@ public class LocationService extends Service implements LocationListener{
         }
     }
 
-
-
-
     @Override
     public void onLocationChanged(Location location) {
         Log.d(TAG, "received location update: " + location.getLatitude() + "," + location.getLongitude());
         sendLocationUpdate(location);
-        //TODO: save into database
+
+        //save timestamp
+        HikeTimestamp timestamp = new HikeTimestamp();
+        timestamp.setTime(location.getTime());
+        timestamp.setLatitude(location.getLatitude());
+        timestamp.setLongitude(location.getLongitude());
+
+        mHikeRoute.addTimestamp(timestamp);
+
+        try {
+            Database.saveHikeRouteInDatabase(mHikeRoute);
+        } catch (DatabaseException e) {
+            e.printStackTrace();
+        }
     }
 
     private void sendLocationUpdate(Location location){
