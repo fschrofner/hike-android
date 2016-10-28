@@ -2,6 +2,8 @@ package at.fhhgb.mc.hike.model.database;
 
 import android.support.annotation.NonNull;
 
+import org.osmdroid.util.GeoPoint;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -17,6 +19,10 @@ public class HikeRoute implements Serializable {
 
     public long getUniqueId() {
         return mUniqueId;
+    }
+
+    public HikeRoute(long uniqueId) {
+        mUniqueId = uniqueId;
     }
 
     @NonNull
@@ -45,5 +51,13 @@ public class HikeRoute implements Serializable {
 
     public void completed(){
         mCompleted = true;
+    }
+
+    public ArrayList<GeoPoint> getPathAsGeoPoints(){
+        ArrayList<GeoPoint> path = new ArrayList<>();
+        for(HikeTimestamp timestamp : mPath){
+            path.add(new GeoPoint(timestamp.getLatitude(), timestamp.getLongitude()));
+        }
+        return path;
     }
 }

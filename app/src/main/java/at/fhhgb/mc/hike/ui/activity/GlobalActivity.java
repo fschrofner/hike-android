@@ -45,4 +45,9 @@ public class GlobalActivity extends AppCompatActivity {
         FragmentManager manager = getSupportFragmentManager();
         manager.popBackStackImmediate();
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
 }
