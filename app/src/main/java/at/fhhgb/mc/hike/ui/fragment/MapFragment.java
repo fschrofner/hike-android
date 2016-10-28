@@ -64,12 +64,11 @@ public class MapFragment extends GlobalFragment {
             HikeRoute hikeRoute = Database.getHikeRouteFromDatabase(mHikeUniqueId);
             mPath = hikeRoute.getPathAsGeoPoints();
 
-            if(mPath.size() > 1){
-                Polyline polyline = new Polyline();
-                polyline.setPoints(mPath);
-                polyline.setColor(Color.BLACK);
-                mMapView.getOverlays().add(polyline);
-            }
+            redrawPath();
+            showUserMarker(mPath.get(mPath.size() - 1));
+
+            mMapController.setZoom(ZOOM_LEVEL_HIKING);
+            mMapController.setCenter(mPath.get(mPath.size() - 1));
 
             mMapView.invalidate();
         } catch (DatabaseException e) {
@@ -187,24 +186,30 @@ public class MapFragment extends GlobalFragment {
         GeoPoint geoPoint = new GeoPoint(event.getLocation());
 
         //TODO: don't always zoom to position (should be disabled when user tries to move view)
-        mMapController.setCenter(geoPoint);
         mMapController.setZoom(ZOOM_LEVEL_HIKING);
+        mMapController.setCenter(geoPoint);
         mPath.add(geoPoint);
 
-        if(mPath.size() > 1){
-            Polyline polyline = new Polyline();
-            polyline.setPoints(mPath);
-            polyline.setColor(Color.BLACK);
+        //TODO: don't recreate the overlay all the time, just update it
+        redrawPath();
+        showUserMarker(geoPoint);
 
-            //TODO: don't recreate the overlay all the time, just update it
-            mMapView.getOverlays().add(polyline);
-        }
+        mMapView.invalidate();
+    }
 
+    private void showUserMarker(GeoPoint geoPoint){
         Marker userMarker = new Marker(mMapView);
         userMarker.setPosition(geoPoint);
         userMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
         mMapView.getOverlays().add(userMarker);
+    }
 
-        mMapView.invalidate();
+    private void redrawPath(){
+        if(mPath.size() > 1){
+            Polyline polyline = new Polyline();
+            polyline.setPoints(mPath);
+            polyline.setColor(Color.BLACK);
+            mMapView.getOverlays().add(polyline);
+        }
     }
 }
