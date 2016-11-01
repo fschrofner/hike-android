@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Hike</string>
+    <string name="notification_title">Tracking Hike</string>
+    <string name="notification_text">Hike is tracking your hike</string>
 </resources>

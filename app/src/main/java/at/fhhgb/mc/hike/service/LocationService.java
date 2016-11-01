@@ -1,6 +1,8 @@
 package at.fhhgb.mc.hike.service;
 
 import android.Manifest;
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -12,10 +14,12 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import at.fhhgb.mc.hike.R;
 import at.fhhgb.mc.hike.app.AppClass;
 import at.fhhgb.mc.hike.app.Database;
 import at.fhhgb.mc.hike.model.database.DatabaseException;
@@ -24,6 +28,7 @@ import at.fhhgb.mc.hike.model.database.HikeTimestamp;
 import at.fhhgb.mc.hike.model.events.LocationUpdateEvent;
 import at.fhhgb.mc.hike.model.events.StartHikeTrackingEvent;
 import at.fhhgb.mc.hike.model.events.StopHikeTrackingEvent;
+import at.fhhgb.mc.hike.ui.activity.MainActivity;
 import at.flosch.logwrap.Log;
 
 /**
@@ -31,12 +36,17 @@ import at.flosch.logwrap.Log;
  */
 
 public class LocationService extends Service implements LocationListener {
+    private final static int NOTIFICATION_ID = 3372;
     private final static String TAG = LocationService.class.getSimpleName();
     private final static int LOCATION_UPDATE_MIN_TIME = 10000;
     private final static float LOCATION_UPDATE_MIN_DISTANCE = 10;
     private LocationManager mLocationManager;
     private HikeRoute mHikeRoute;
-    private long mHikeUniqueId;
+    private static Long mHikeUniqueId = null;
+
+    public static Long ongoingHikeId(){
+        return mHikeUniqueId;
+    }
 
     @Nullable
     @Override
@@ -69,6 +79,7 @@ public class LocationService extends Service implements LocationListener {
     public void onStopHikeTracking(StopHikeTrackingEvent event) {
         mHikeUniqueId = Long.MIN_VALUE;
         mHikeRoute = null;
+        mHikeUniqueId = null;
         stopLocationTracking();
     }
 
@@ -76,10 +87,24 @@ public class LocationService extends Service implements LocationListener {
         if(AppClass.getInstance().checkLocationPermission()){
             mLocationManager.removeUpdates(this);
         }
+        stopForeground(true);
     }
 
     private void startLocationTracking() {
         if(AppClass.getInstance().checkLocationPermission()){
+            Intent intent = new Intent(this, MainActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, (int) System.currentTimeMillis(), intent, 0);
+
+            Notification notification = new NotificationCompat.Builder(this)
+                    .setTicker(getString(R.string.notification_title))
+                    .setSmallIcon(android.R.drawable.ic_menu_report_image)
+                    .setContentTitle(getString(R.string.notification_title))
+                    .setContentText(getString(R.string.notification_text))
+                    .setContentIntent(pendingIntent)
+                    .setAutoCancel(true)
+                    .build();
+
+            startForeground(NOTIFICATION_ID, notification);
             mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                     LOCATION_UPDATE_MIN_TIME, LOCATION_UPDATE_MIN_DISTANCE, this);

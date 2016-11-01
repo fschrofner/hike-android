@@ -17,6 +17,8 @@ import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
+import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.util.ArrayList;
 
@@ -29,6 +31,7 @@ import at.fhhgb.mc.hike.model.database.HikeRoute;
 import at.fhhgb.mc.hike.model.events.LocationUpdateEvent;
 import at.fhhgb.mc.hike.model.events.StartHikeTrackingEvent;
 import at.fhhgb.mc.hike.model.events.StopHikeTrackingEvent;
+import at.fhhgb.mc.hike.service.LocationService;
 import at.flosch.logwrap.Log;
 import butterknife.BindView;
 
@@ -38,7 +41,6 @@ import butterknife.BindView;
 
 public class MapFragment extends GlobalFragment {
     final static int ZOOM_LEVEL_HIKING = 18;
-    final static String HIKE_UNIQUE_ID = "hike.unique.id";
 
     @BindView(R.id.mapview)
     MapView mMapView;
@@ -48,6 +50,8 @@ public class MapFragment extends GlobalFragment {
 
     @BindView(R.id.stop_tracking_button)
     Button mStopButton;
+
+    MyLocationNewOverlay mLocationOverlay;
 
     long mHikeUniqueId = Long.MIN_VALUE;
     MapController mMapController;
@@ -61,14 +65,20 @@ public class MapFragment extends GlobalFragment {
 
     private void loadPathFromDatabase(){
         try {
+
             HikeRoute hikeRoute = Database.getHikeRouteFromDatabase(mHikeUniqueId);
             mPath = hikeRoute.getPathAsGeoPoints();
 
             redrawPath();
-            showUserMarker(mPath.get(mPath.size() - 1));
+            //showUserMarker(mPath.get(mPath.size() - 1));
 
             mMapController.setZoom(ZOOM_LEVEL_HIKING);
             mMapController.setCenter(mPath.get(mPath.size() - 1));
+
+
+            if(mLocationOverlay != null){
+                mMapView.getOverlays().add(mLocationOverlay);
+            }
 
             mMapView.invalidate();
         } catch (DatabaseException e) {
@@ -80,19 +90,20 @@ public class MapFragment extends GlobalFragment {
     public void onSaveInstanceState(Bundle outState) {
         Log.d(TAG, "saving instance state");
         super.onSaveInstanceState(outState);
-        outState.putLong(HIKE_UNIQUE_ID, mHikeUniqueId);
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        showLocation();
 
-        if(mHikeUniqueId == Long.MIN_VALUE){
+        if(LocationService.ongoingHikeId() != null){
+            Log.d(TAG, "resuming ongoing hike");
+            mHikeUniqueId = LocationService.ongoingHikeId();
+            setupForOngoingHike();
+        } else {
             Log.d(TAG, "new hike");
             setupForNewHike();
-        } else {
-            Log.d(TAG, "resuming ongoing hike");
-            setupForOngoingHike();
         }
     }
 
@@ -102,13 +113,6 @@ public class MapFragment extends GlobalFragment {
         Log.d(TAG, "on create view called");
         setView(R.layout.fragment_map, inflater, container);
         setupMap();
-
-        if(savedInstanceState != null && savedInstanceState.containsKey(HIKE_UNIQUE_ID)){
-            mHikeUniqueId = savedInstanceState.getLong(HIKE_UNIQUE_ID);
-        } else {
-            mHikeUniqueId = Long.MIN_VALUE;
-        }
-
         return mRootView;
     }
 
@@ -117,6 +121,7 @@ public class MapFragment extends GlobalFragment {
         mHikeUniqueId = Long.MIN_VALUE;
         mPath = new ArrayList<>();
         showStartButton();
+        mMapView.invalidate();
     }
 
     private void showStartButton(){
@@ -166,6 +171,13 @@ public class MapFragment extends GlobalFragment {
         mMapView.setMultiTouchControls(true);
     }
 
+    private void showLocation(){
+        mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(getContext()),mMapView);
+        mLocationOverlay.enableMyLocation();
+        mMapView.getOverlays().add(this.mLocationOverlay);
+        //TODO: zoom in?
+    }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -192,7 +204,10 @@ public class MapFragment extends GlobalFragment {
 
         //TODO: don't recreate the overlay all the time, just update it
         redrawPath();
-        showUserMarker(geoPoint);
+        //showUserMarker(geoPoint);
+        if(mLocationOverlay != null){
+            mMapView.getOverlays().add(mLocationOverlay);
+        }
 
         mMapView.invalidate();
     }
