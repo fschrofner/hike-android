@@ -1,6 +1,7 @@
 package at.fhhgb.mc.hike.ui.fragment;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -8,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+
+import com.esotericsoftware.kryo.serializers.FieldSerializer;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -32,6 +35,7 @@ import at.fhhgb.mc.hike.model.events.LocationUpdateEvent;
 import at.fhhgb.mc.hike.model.events.StartHikeTrackingEvent;
 import at.fhhgb.mc.hike.model.events.StopHikeTrackingEvent;
 import at.fhhgb.mc.hike.service.LocationService;
+import at.fhhgb.mc.hike.ui.activity.TagActivity;
 import at.flosch.logwrap.Log;
 import butterknife.BindView;
 
@@ -50,6 +54,9 @@ public class MapFragment extends GlobalFragment {
 
     @BindView(R.id.stop_tracking_button)
     Button mStopButton;
+
+    @BindView(R.id.add_tag_button)
+    Button mAddTagButton;
 
     MyLocationNewOverlay mLocationOverlay;
 
@@ -127,6 +134,8 @@ public class MapFragment extends GlobalFragment {
     private void showStartButton(){
         mStartButton.setVisibility(View.VISIBLE);
         mStopButton.setVisibility(View.GONE);
+        mAddTagButton.setVisibility(View.GONE);
+
         mStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -136,16 +145,26 @@ public class MapFragment extends GlobalFragment {
                 EventBus.getDefault().post(new StartHikeTrackingEvent(mHikeUniqueId));
             }
         });
+
     }
 
     private void showStopButton(){
         mStartButton.setVisibility(View.GONE);
         mStopButton.setVisibility(View.VISIBLE);
+        mAddTagButton.setVisibility(View.VISIBLE);
+
         mStopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 setupForNewHike();
                 EventBus.getDefault().post(new StopHikeTrackingEvent());
+            }
+        });
+        mAddTagButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getContext(), TagActivity.class);
+                startActivity(intent);
             }
         });
     }
