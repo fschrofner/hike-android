@@ -1,6 +1,5 @@
 package at.fhhgb.mc.hike.ui.fragment;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -10,11 +9,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.esotericsoftware.kryo.serializers.FieldSerializer;
-
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import org.osmdroid.events.MapListener;
+import org.osmdroid.events.ScrollEvent;
+import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
@@ -24,6 +25,7 @@ import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import at.fhhgb.mc.hike.BuildConfig;
 import at.fhhgb.mc.hike.R;
@@ -45,6 +47,8 @@ import butterknife.BindView;
 
 public class MapFragment extends GlobalFragment {
     final static int ZOOM_LEVEL_HIKING = 18;
+    final static int MAX_POINTS = 20;
+    final static int PATH_COLOR = Color.BLACK;
 
     @BindView(R.id.mapview)
     MapView mMapView;
@@ -64,6 +68,9 @@ public class MapFragment extends GlobalFragment {
     MapController mMapController;
     ArrayList<GeoPoint> mPath;
 
+    private Thread updateThread = null;
+    Polyline pathOverlay = null;
+
     private final String TAG = MapFragment.class.getSimpleName();
 
     public static MapFragment newInstance(){
@@ -76,18 +83,11 @@ public class MapFragment extends GlobalFragment {
             HikeRoute hikeRoute = Database.getHikeRouteFromDatabase(mHikeUniqueId);
             mPath = hikeRoute.getPathAsGeoPoints();
 
-            redrawPath();
-            //showUserMarker(mPath.get(mPath.size() - 1));
+            redrawEverything(mMapView, PATH_COLOR);
 
             mMapController.setZoom(ZOOM_LEVEL_HIKING);
             mMapController.setCenter(mPath.get(mPath.size() - 1));
 
-
-            if(mLocationOverlay != null){
-                mMapView.getOverlays().add(mLocationOverlay);
-            }
-
-            mMapView.invalidate();
         } catch (DatabaseException e) {
             e.printStackTrace();
         }
@@ -188,6 +188,19 @@ public class MapFragment extends GlobalFragment {
         mMapView.setMinZoomLevel(3);
         mMapView.setTileSource(TileSourceFactory.MAPNIK);
         mMapView.setMultiTouchControls(true);
+        mMapView.setMapListener(new MapListener() {
+            @Override
+            public boolean onScroll(ScrollEvent event) {
+                redrawEverything(mMapView, PATH_COLOR);
+                return false;
+            }
+
+            @Override
+            public boolean onZoom(ZoomEvent event) {
+                redrawEverything(mMapView, PATH_COLOR);
+                return false;
+            }
+        });
     }
 
     private void showLocation(){
@@ -222,13 +235,7 @@ public class MapFragment extends GlobalFragment {
         mPath.add(geoPoint);
 
         //TODO: don't recreate the overlay all the time, just update it
-        redrawPath();
-        //showUserMarker(geoPoint);
-        if(mLocationOverlay != null){
-            mMapView.getOverlays().add(mLocationOverlay);
-        }
-
-        mMapView.invalidate();
+        redrawEverything(mMapView, PATH_COLOR);
     }
 
     private void showUserMarker(GeoPoint geoPoint){
@@ -238,12 +245,75 @@ public class MapFragment extends GlobalFragment {
         mMapView.getOverlays().add(userMarker);
     }
 
-    private void redrawPath(){
-        if(mPath.size() > 1){
-            Polyline polyline = new Polyline();
-            polyline.setPoints(mPath);
-            polyline.setColor(Color.BLACK);
-            mMapView.getOverlays().add(polyline);
+    private void showUserLocationIfEnabled(){
+        if(mLocationOverlay != null){
+            mMapView.getOverlays().add(mLocationOverlay);
+        }
+    }
+
+    public void redrawEverything(final MapView osmMap, final int color){
+        if(updateThread == null || !updateThread.isAlive()){
+            redraw(osmMap, color);
+        }
+    }
+
+    private void redraw(final MapView osmMap, final int color){
+        updateThread = new Thread(new Runnable() {
+            public void run() {
+                final ArrayList<GeoPoint> zoomPoints = new ArrayList<>(mPath);
+
+                //Remove any points that are offscreen
+                removeHiddenPoints(osmMap, zoomPoints);
+
+                //If there's still too many then thin the array
+                if(zoomPoints.size() > MAX_POINTS){
+                    int stepSize = (int) zoomPoints.size()/MAX_POINTS;
+                    int count = 1;
+                    for (Iterator<GeoPoint> iterator = zoomPoints.iterator(); iterator.hasNext();) {
+                        iterator.next();
+
+                        if(count != stepSize){
+                            iterator.remove();
+                        }else{
+                            count = 0;
+                        }
+
+                        count++;
+                    }
+                }
+
+                //Update the map on the event thread
+                osmMap.post(new Runnable() {
+                    public void run() {
+                        //ideally the Polyline construction would happen in the thread but that causes glitches while the event thread
+                        //waits for redraw:
+                        osmMap.getOverlays().remove(pathOverlay);
+                        pathOverlay = new Polyline();
+                        pathOverlay.setPoints(zoomPoints);
+                        pathOverlay.setColor(color);
+                        osmMap.getOverlays().add(pathOverlay);
+
+                        showUserLocationIfEnabled();
+
+                        osmMap.invalidate();
+                    }
+                });
+            }
+        });
+        updateThread.start();
+    }
+
+    private void removeHiddenPoints(MapView osmMap, ArrayList<GeoPoint> zoomPoints) {
+        BoundingBox bounds = osmMap.getBoundingBox();
+
+        for (Iterator<GeoPoint> iterator = zoomPoints.iterator(); iterator.hasNext(); ) {
+            GeoPoint point = iterator.next();
+
+            boolean inLongitude = point.getLatitude() < bounds.getLatNorth() && point.getLatitude() > bounds.getLatSouth();
+            boolean inLatitude = point.getLongitude() > bounds.getLonWest() && point.getLongitude() < bounds.getLonEast();
+            if (!inLongitude || !inLatitude) {
+                iterator.remove();
+            }
         }
     }
 }
