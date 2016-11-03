@@ -5,19 +5,30 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import at.fhhgb.mc.hike.R;
+import at.fhhgb.mc.hike.model.database.HikeTag;
 import at.flosch.logwrap.Log;
+import butterknife.BindView;
 
 /**
  * @author Florian Schrofner
  */
 
 public class TagFragment extends GlobalFragment {
+    @BindView(R.id.tag_description)
+    EditText mTagDescription;
+
     final static String TAG = TagFragment.class.getSimpleName();
 
     public static TagFragment newInstance(){
         return new TagFragment();
+    }
+
+    public HikeTag getTagData(){
+        //TODO: actually create hiketag with data
+        return new HikeTag();
     }
 
     @Nullable

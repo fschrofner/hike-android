@@ -47,7 +47,7 @@ import butterknife.BindView;
 
 public class MapFragment extends GlobalFragment {
     final static int ZOOM_LEVEL_HIKING = 18;
-    final static int MAX_POINTS = 20;
+    final static int MAX_POINTS = 150;
     final static int PATH_COLOR = Color.BLACK;
 
     @BindView(R.id.mapview)
