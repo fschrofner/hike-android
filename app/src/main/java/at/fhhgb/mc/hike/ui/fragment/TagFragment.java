@@ -27,8 +27,9 @@ public class TagFragment extends GlobalFragment {
     }
 
     public HikeTag getTagData(){
-        //TODO: actually create hiketag with data
-        return new HikeTag();
+        HikeTag hikeTag = new HikeTag();
+        hikeTag.setDescription(mTagDescription.getText().toString());
+        return hikeTag;
     }
 
     @Nullable

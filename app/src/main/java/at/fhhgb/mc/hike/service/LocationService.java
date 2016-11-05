@@ -24,10 +24,12 @@ import at.fhhgb.mc.hike.app.AppClass;
 import at.fhhgb.mc.hike.app.Database;
 import at.fhhgb.mc.hike.model.database.DatabaseException;
 import at.fhhgb.mc.hike.model.database.HikeRoute;
+import at.fhhgb.mc.hike.model.database.HikeTag;
 import at.fhhgb.mc.hike.model.database.HikeTimestamp;
 import at.fhhgb.mc.hike.model.events.LocationUpdateEvent;
 import at.fhhgb.mc.hike.model.events.StartHikeTrackingEvent;
 import at.fhhgb.mc.hike.model.events.StopHikeTrackingEvent;
+import at.fhhgb.mc.hike.model.events.TagSavedEvent;
 import at.fhhgb.mc.hike.ui.activity.MainActivity;
 import at.flosch.logwrap.Log;
 
@@ -81,6 +83,19 @@ public class LocationService extends Service implements LocationListener {
         mHikeRoute = null;
         mHikeUniqueId = null;
         stopLocationTracking();
+    }
+
+    @Subscribe
+    public void onTagSaved(TagSavedEvent event){
+        HikeTag tag = event.getHikeTag();
+        //TODO: save with tag
+        mHikeRoute.addTag(tag);
+
+        try {
+            Database.saveHikeRouteInDatabase(mHikeRoute);
+        } catch (DatabaseException e) {
+            e.printStackTrace();
+        }
     }
 
     private void stopLocationTracking() {

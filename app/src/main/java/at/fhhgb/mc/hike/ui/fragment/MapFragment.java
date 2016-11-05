@@ -24,6 +24,7 @@ import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -33,9 +34,11 @@ import at.fhhgb.mc.hike.app.Database;
 import at.fhhgb.mc.hike.app.Helper;
 import at.fhhgb.mc.hike.model.database.DatabaseException;
 import at.fhhgb.mc.hike.model.database.HikeRoute;
+import at.fhhgb.mc.hike.model.database.HikeTag;
 import at.fhhgb.mc.hike.model.events.LocationUpdateEvent;
 import at.fhhgb.mc.hike.model.events.StartHikeTrackingEvent;
 import at.fhhgb.mc.hike.model.events.StopHikeTrackingEvent;
+import at.fhhgb.mc.hike.model.events.TagSavedEvent;
 import at.fhhgb.mc.hike.service.LocationService;
 import at.fhhgb.mc.hike.ui.activity.TagActivity;
 import at.flosch.logwrap.Log;
@@ -46,6 +49,7 @@ import butterknife.BindView;
  */
 
 public class MapFragment extends GlobalFragment {
+    final static int REQUEST_CODE_CREATE_TAG = 2134;
     final static int ZOOM_LEVEL_HIKING = 18;
     final static int MAX_POINTS = 150;
     final static int PATH_COLOR = Color.BLACK;
@@ -67,6 +71,7 @@ public class MapFragment extends GlobalFragment {
     long mHikeUniqueId = Long.MIN_VALUE;
     MapController mMapController;
     ArrayList<GeoPoint> mPath;
+    ArrayList<HikeTag> mTags;
 
     private Thread updateThread = null;
     Polyline pathOverlay = null;
@@ -77,11 +82,14 @@ public class MapFragment extends GlobalFragment {
         return new MapFragment();
     }
 
-    private void loadPathFromDatabase(){
+    private void loadDataFromDatabase(){
         try {
 
             HikeRoute hikeRoute = Database.getHikeRouteFromDatabase(mHikeUniqueId);
             mPath = hikeRoute.getPathAsGeoPoints();
+
+            //TODO: load
+            mTags = hikeRoute.getTags();
 
             redrawEverything(mMapView, PATH_COLOR);
 
@@ -127,6 +135,7 @@ public class MapFragment extends GlobalFragment {
         Log.d(TAG, "setup for new hike");
         mHikeUniqueId = Long.MIN_VALUE;
         mPath = new ArrayList<>();
+        mTags = new ArrayList<>();
         showStartButton();
         mMapView.invalidate();
     }
@@ -164,7 +173,7 @@ public class MapFragment extends GlobalFragment {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getContext(), TagActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_CODE_CREATE_TAG);
             }
         });
     }
@@ -177,7 +186,7 @@ public class MapFragment extends GlobalFragment {
     private void setupForOngoingHike(){
         Log.d(TAG, "setup for existing hike");
         clearMap();
-        loadPathFromDatabase();
+        loadDataFromDatabase();
         showStopButton();
     }
 
@@ -256,6 +265,20 @@ public class MapFragment extends GlobalFragment {
         }
     }
 
+    private void showTags(){
+        //Log.d(TAG, "showing tags, size: " + mTags.size());
+        for(HikeTag tag : mTags){
+            GeoPoint geoPoint = new GeoPoint(tag.getLatitude(), tag.getLongitude());
+            if(checkIfVisible(geoPoint)){
+                Marker tagMarker = new Marker(mMapView);
+                tagMarker.setPosition(geoPoint);
+                //TODO: change icon
+                tagMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+                mMapView.getOverlays().add(tagMarker);
+            }
+        }
+    }
+
     public void redrawEverything(final MapView osmMap, final int color){
         if(updateThread == null || !updateThread.isAlive()){
             redraw(osmMap, color);
@@ -268,7 +291,7 @@ public class MapFragment extends GlobalFragment {
                 final ArrayList<GeoPoint> zoomPoints = new ArrayList<>(mPath);
 
                 //Remove any points that are offscreen
-                removeHiddenPoints(osmMap, zoomPoints);
+                removeHiddenPoints(zoomPoints);
 
                 //If there's still too many then thin the array
                 if(zoomPoints.size() > MAX_POINTS){
@@ -299,6 +322,7 @@ public class MapFragment extends GlobalFragment {
                         osmMap.getOverlays().add(pathOverlay);
 
                         showUserLocationIfEnabled();
+                        showTags();
 
                         osmMap.invalidate();
                     }
@@ -308,17 +332,49 @@ public class MapFragment extends GlobalFragment {
         updateThread.start();
     }
 
-    private void removeHiddenPoints(MapView osmMap, ArrayList<GeoPoint> zoomPoints) {
-        BoundingBox bounds = osmMap.getBoundingBox();
+    private void removeHiddenPoints(ArrayList<GeoPoint> zoomPoints) {
 
         for (Iterator<GeoPoint> iterator = zoomPoints.iterator(); iterator.hasNext(); ) {
             GeoPoint point = iterator.next();
 
-            boolean inLongitude = point.getLatitude() < bounds.getLatNorth() && point.getLatitude() > bounds.getLatSouth();
-            boolean inLatitude = point.getLongitude() > bounds.getLonWest() && point.getLongitude() < bounds.getLonEast();
-            if (!inLongitude || !inLatitude) {
+            if (!checkIfVisible(point)) {
                 iterator.remove();
             }
         }
+    }
+
+    private boolean checkIfVisible(GeoPoint point){
+        BoundingBox bounds = mMapView.getBoundingBox();
+
+        boolean inLongitude = point.getLatitude() < bounds.getLatNorth() && point.getLatitude() > bounds.getLatSouth();
+        boolean inLatitude = point.getLongitude() > bounds.getLonWest() && point.getLongitude() < bounds.getLonEast();
+
+        return inLongitude && inLatitude;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "received activity result");
+        if(requestCode == REQUEST_CODE_CREATE_TAG && resultCode == TagActivity.RESULT_CODE_TAG_CREATED){
+            //TODO: add marker and save tag in database
+            Log.d(TAG, "a tag was created");
+            Serializable ser = data.getSerializableExtra(TagActivity.EXTRA_CREATED_TAG);
+            HikeTag tag = (HikeTag)ser;
+
+            //setting the correct location
+            GeoPoint lastGeopoint = mPath.get(mPath.size()-1);
+            tag.setLatitude(lastGeopoint.getLatitude());
+            tag.setLongitude(lastGeopoint.getLongitude());
+
+            //add to list of tags to display
+            mTags.add(tag);
+            Log.d(TAG, "number of tags saved: " + mTags.size());
+
+            //sending tag to service, so that it can be saved
+            EventBus.getDefault().post(new TagSavedEvent(tag));
+
+            redrawEverything(mMapView, PATH_COLOR);
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }
