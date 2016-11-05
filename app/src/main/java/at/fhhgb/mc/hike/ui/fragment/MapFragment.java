@@ -184,6 +184,7 @@ public class MapFragment extends GlobalFragment {
     private void setupMap(){
         org.osmdroid.tileprovider.constants.OpenStreetMapTileProviderConstants.setUserAgentValue(BuildConfig.APPLICATION_ID);
         mMapController = (MapController) mMapView.getController();
+        mMapController.setZoom(ZOOM_LEVEL_HIKING);
         mMapView.setMaxZoomLevel(20);
         mMapView.setMinZoomLevel(3);
         mMapView.setTileSource(TileSourceFactory.MAPNIK);
@@ -206,7 +207,14 @@ public class MapFragment extends GlobalFragment {
     private void showLocation(){
         mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(getContext()),mMapView);
         mLocationOverlay.enableMyLocation();
+        mLocationOverlay.enableFollowLocation();
         mMapView.getOverlays().add(this.mLocationOverlay);
+
+        mLocationOverlay.runOnFirstFix(new Runnable() {
+            public void run() {
+                mMapController.animateTo(mLocationOverlay.getMyLocation());
+            }
+        });
         //TODO: zoom in?
     }
 
@@ -229,9 +237,6 @@ public class MapFragment extends GlobalFragment {
         Log.d(TAG, "received location update from service");
         GeoPoint geoPoint = new GeoPoint(event.getLocation());
 
-        //TODO: don't always zoom to position (should be disabled when user tries to move view)
-        mMapController.setZoom(ZOOM_LEVEL_HIKING);
-        mMapController.setCenter(geoPoint);
         mPath.add(geoPoint);
 
         //TODO: don't recreate the overlay all the time, just update it
