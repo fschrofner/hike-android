@@ -202,19 +202,19 @@ public class MapFragment extends GlobalFragment {
         mMapView.setMinZoomLevel(3);
         mMapView.setTileSource(TileSourceFactory.MAPNIK);
         mMapView.setMultiTouchControls(true);
-        mMapView.setMapListener(new MapListener() {
-            @Override
-            public boolean onScroll(ScrollEvent event) {
-                redrawEverything(mMapView, PATH_COLOR);
-                return false;
-            }
-
-            @Override
-            public boolean onZoom(ZoomEvent event) {
-                redrawEverything(mMapView, PATH_COLOR);
-                return false;
-            }
-        });
+//        mMapView.setMapListener(new MapListener() {
+//            @Override
+//            public boolean onScroll(ScrollEvent event) {
+//                redrawEverything(mMapView, PATH_COLOR);
+//                return false;
+//            }
+//
+//            @Override
+//            public boolean onZoom(ZoomEvent event) {
+//                redrawEverything(mMapView, PATH_COLOR);
+//                return false;
+//            }
+//        });
     }
 
     private void showLocation(){

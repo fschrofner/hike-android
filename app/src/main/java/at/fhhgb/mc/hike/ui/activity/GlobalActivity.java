@@ -27,6 +27,17 @@ public class GlobalActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mFragmentManager = getSupportFragmentManager();
+
+        //disable actionbar shadow
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setElevation(0);
+        }
+    }
+
+    public void setTitle(String title){
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setTitle(title);
+        }
     }
 
     @Override

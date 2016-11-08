@@ -4,4 +4,12 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="height_normal">60dp</dimen>
     <dimen name="margin_normal">30dp</dimen>
+    <dimen name="margin_normal_2">20dp</dimen>
+    <dimen name="margin_small">10dp</dimen>
+
+    <!-- height -->
+    <dimen name="card_height_big">200dp</dimen>
+
+    <!-- text size -->
+    <dimen name="text_size_huge">80sp</dimen>
 </resources>

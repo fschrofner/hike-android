@@ -23,6 +23,7 @@ public class MainActivity extends  GlobalActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setView(R.layout.activity_main);
+        setTitle("");
 
         //enable logging for debug builds
         if (BuildConfig.DEBUG) {
