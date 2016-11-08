@@ -3,11 +3,16 @@ package at.fhhgb.mc.hike.ui.fragment;
 import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.MenuRes;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import at.fhhgb.mc.hike.R;
 import at.fhhgb.mc.hike.ui.activity.GlobalActivity;
 import butterknife.ButterKnife;
 
@@ -16,6 +21,8 @@ import butterknife.ButterKnife;
  */
 
 public class GlobalFragment extends Fragment{
+    @MenuRes
+    private int mMenuToInflate = R.menu.empty_menu;
     private String FRAGMENT_NAME;
     protected View mRootView;
 

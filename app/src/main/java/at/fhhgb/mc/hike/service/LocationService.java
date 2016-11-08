@@ -50,6 +50,10 @@ public class LocationService extends Service implements LocationListener {
         return mHikeUniqueId;
     }
 
+    public static boolean ongoingHike(){
+        return ongoingHikeId() != null;
+    }
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {

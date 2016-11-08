@@ -3,6 +3,7 @@ package at.fhhgb.mc.hike.ui.activity;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.support.annotation.MenuRes;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
@@ -42,6 +43,17 @@ public class MainActivity extends  GlobalActivity{
         }
 
         tryToShowMapFragment();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if(LocationService.ongoingHike()){
+            changeMenu(R.menu.hike_menu);
+        } else {
+            changeMenu(R.menu.empty_menu);
+        }
     }
 
     private void tryToShowMapFragment(){

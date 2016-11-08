@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -101,6 +102,8 @@ public class MapFragment extends GlobalFragment {
         }
     }
 
+
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         Log.d(TAG, "saving instance state");
@@ -108,11 +111,17 @@ public class MapFragment extends GlobalFragment {
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         showLocation();
 
-        if(LocationService.ongoingHikeId() != null){
+        if(LocationService.ongoingHike()){
             Log.d(TAG, "resuming ongoing hike");
             mHikeUniqueId = LocationService.ongoingHikeId();
             setupForOngoingHike();
@@ -150,6 +159,7 @@ public class MapFragment extends GlobalFragment {
             public void onClick(View view) {
                 clearMap();
                 showStopButton();
+                getGlobalActivity().changeMenu(R.menu.hike_menu);
                 mHikeUniqueId = Helper.generateUniqueId();
                 EventBus.getDefault().post(new StartHikeTrackingEvent(mHikeUniqueId));
             }
@@ -160,20 +170,14 @@ public class MapFragment extends GlobalFragment {
     private void showStopButton(){
         mStartButton.setVisibility(View.GONE);
         mStopButton.setVisibility(View.VISIBLE);
-        mAddTagButton.setVisibility(View.VISIBLE);
+        //mAddTagButton.setVisibility(View.VISIBLE);
 
         mStopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 setupForNewHike();
+                getGlobalActivity().changeMenu(R.menu.empty_menu);
                 EventBus.getDefault().post(new StopHikeTrackingEvent());
-            }
-        });
-        mAddTagButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getContext(), TagActivity.class);
-                startActivityForResult(intent, REQUEST_CODE_CREATE_TAG);
             }
         });
     }
@@ -350,6 +354,16 @@ public class MapFragment extends GlobalFragment {
         boolean inLatitude = point.getLongitude() > bounds.getLonWest() && point.getLongitude() < bounds.getLonEast();
 
         return inLongitude && inLatitude;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == R.id.menu_add){
+            Intent intent = new Intent(getContext(), TagActivity.class);
+            startActivityForResult(intent, REQUEST_CODE_CREATE_TAG);
+            return true;
+        }
+        return false;
     }
 
     @Override

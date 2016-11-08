@@ -19,8 +19,6 @@ public class TagActivity extends GlobalActivity {
     public final static int RESULT_CODE_TAG_CREATED = 83635;
     public final static int RESULT_CODE_TAG_FAILED = 83544;
     public final static String EXTRA_CREATED_TAG = "created.tag";
-
-    private int mMenuToInflate = R.menu.tag_menu;
     private TagFragment mTagFragment;
 
     @Override
@@ -29,18 +27,7 @@ public class TagActivity extends GlobalActivity {
         setView(R.layout.activity_tag);
         mTagFragment = TagFragment.newInstance();
         addFragment(mTagFragment, false);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(mMenuToInflate, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    private void changeMenu(@MenuRes int menuToInflate){
-        mMenuToInflate = menuToInflate;
-        invalidateOptionsMenu();
+        changeMenu(R.menu.tag_menu);
     }
 
     @Override
