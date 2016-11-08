@@ -115,6 +115,9 @@ public class MapFragment extends GlobalFragment {
             mMapController.setZoom(ZOOM_LEVEL_HIKING);
             mMapController.setCenter(mPath.get(mPath.size() - 1));
 
+            showDistance(hikeRoute.getStats().getTotalDistanceMeters());
+            showElevation(hikeRoute.getStats().getPositiveElevationChangeMeters());
+
         } catch (DatabaseException e) {
             e.printStackTrace();
         }
@@ -142,11 +145,6 @@ public class MapFragment extends GlobalFragment {
         if(LocationService.ongoingHike()){
             Log.d(TAG, "resuming ongoing hike");
             mHikeUniqueId = LocationService.ongoingHikeId();
-            if(LocationService.startTime() != null){
-                long elapsedTime = System.currentTimeMillis() - LocationService.startTime();
-                mHikeTime.setBase(SystemClock.elapsedRealtime() - elapsedTime);
-            }
-            mHikeTime.start();
             setupForOngoingHike();
         } else {
             Log.d(TAG, "new hike");
@@ -233,6 +231,14 @@ public class MapFragment extends GlobalFragment {
         Log.d(TAG, "setup for existing hike");
         clearMap();
         loadDataFromDatabase();
+        showHikeStats();
+
+        if(LocationService.startTime() != null){
+            long elapsedTime = System.currentTimeMillis() - LocationService.startTime();
+            mHikeTime.setBase(SystemClock.elapsedRealtime() - elapsedTime);
+        }
+
+        mHikeTime.start();
         showStopButton();
     }
 
@@ -300,9 +306,18 @@ public class MapFragment extends GlobalFragment {
     @Subscribe
     public void onStatsUpdated(StatsUpdateEvent event){
         HikeStats stats = event.getHikeStats();
+        showDistance(stats.getTotalDistanceMeters());
+        showElevation(stats.getPositiveElevationChangeMeters());
+    }
+
+    private void showDistance(long meters){
         //TODO: format correctly
-        mHikeDistance.setText(stats.getTotalDistanceMeters() + " m");
-        mHikeElevation.setText(stats.getPositiveElevationChangeMeters() + " m");
+        mHikeDistance.setText(meters + " m");
+    }
+
+    private void showElevation(long meters){
+        //TODO: format correctly
+        mHikeElevation.setText(meters + " m");
     }
 
     private void showUserMarker(GeoPoint geoPoint){
