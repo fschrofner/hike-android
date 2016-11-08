@@ -4,4 +4,5 @@
     <string name="notification_text">Hike is tracking your hike</string>
     <string name="toolbar_save">Save</string>
     <string name="toolbar_add">Add</string>
+    <string name="time_format">H:MM:SS</string>
 </resources>

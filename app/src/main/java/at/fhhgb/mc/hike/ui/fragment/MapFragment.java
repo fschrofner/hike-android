@@ -3,12 +3,14 @@ package at.fhhgb.mc.hike.ui.fragment;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Chronometer;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -67,6 +69,9 @@ public class MapFragment extends GlobalFragment {
     @BindView(R.id.add_tag_button)
     Button mAddTagButton;
 
+    @BindView(R.id.hike_time)
+    Chronometer mHikeTime;
+
     MyLocationNewOverlay mLocationOverlay;
 
     long mHikeUniqueId = Long.MIN_VALUE;
@@ -124,11 +129,22 @@ public class MapFragment extends GlobalFragment {
         if(LocationService.ongoingHike()){
             Log.d(TAG, "resuming ongoing hike");
             mHikeUniqueId = LocationService.ongoingHikeId();
+            if(LocationService.startTime() != null){
+                long elapsedTime = System.currentTimeMillis() - LocationService.startTime();
+                mHikeTime.setBase(SystemClock.elapsedRealtime() - elapsedTime);
+            }
+            mHikeTime.start();
             setupForOngoingHike();
         } else {
             Log.d(TAG, "new hike");
             setupForNewHike();
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mHikeTime.stop();
     }
 
     @Nullable
@@ -161,6 +177,8 @@ public class MapFragment extends GlobalFragment {
                 showStopButton();
                 getGlobalActivity().changeMenu(R.menu.hike_menu);
                 mHikeUniqueId = Helper.generateUniqueId();
+                mHikeTime.setBase(SystemClock.elapsedRealtime());
+                mHikeTime.start();
                 EventBus.getDefault().post(new StartHikeTrackingEvent(mHikeUniqueId));
             }
         });
@@ -178,6 +196,7 @@ public class MapFragment extends GlobalFragment {
                 setupForNewHike();
                 getGlobalActivity().changeMenu(R.menu.empty_menu);
                 EventBus.getDefault().post(new StopHikeTrackingEvent());
+                mHikeTime.stop();
             }
         });
     }
@@ -249,7 +268,6 @@ public class MapFragment extends GlobalFragment {
 
         Log.d(TAG, "received location update from service");
         GeoPoint geoPoint = new GeoPoint(event.getLocation());
-
         mPath.add(geoPoint);
 
         //TODO: don't recreate the overlay all the time, just update it

@@ -10,6 +10,7 @@ public class HikeTimestamp implements Serializable {
     long mTime;
     double mLatitude;
     double mLongitude;
+    double mAltitude;
 
     public long getTime() {
         return mTime;
@@ -33,5 +34,13 @@ public class HikeTimestamp implements Serializable {
 
     public void setLongitude(double longitude) {
         mLongitude = longitude;
+    }
+
+    public double getAltitude() {
+        return mAltitude;
+    }
+
+    public void setAltitude(double altitude) {
+        mAltitude = altitude;
     }
 }

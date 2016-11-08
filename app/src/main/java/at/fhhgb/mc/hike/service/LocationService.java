@@ -45,9 +45,18 @@ public class LocationService extends Service implements LocationListener {
     private LocationManager mLocationManager;
     private HikeRoute mHikeRoute;
     private static Long mHikeUniqueId = null;
+    private static Long mHikeStartTime = null;
 
     public static Long ongoingHikeId(){
         return mHikeUniqueId;
+    }
+
+    public static Long startTime(){
+        if(ongoingHike() && mHikeStartTime != null){
+            return mHikeStartTime;
+        } else {
+            return null;
+        }
     }
 
     public static boolean ongoingHike(){
@@ -78,6 +87,7 @@ public class LocationService extends Service implements LocationListener {
         Log.d(TAG, "received start hike tracking event");
         mHikeUniqueId = event.getUniqueId();
         mHikeRoute = new HikeRoute(event.getUniqueId());
+        mHikeStartTime = System.currentTimeMillis();
         startLocationTracking();
     }
 
@@ -86,6 +96,7 @@ public class LocationService extends Service implements LocationListener {
         mHikeUniqueId = Long.MIN_VALUE;
         mHikeRoute = null;
         mHikeUniqueId = null;
+        mHikeStartTime = null;
         stopLocationTracking();
     }
 
@@ -142,6 +153,7 @@ public class LocationService extends Service implements LocationListener {
         timestamp.setTime(location.getTime());
         timestamp.setLatitude(location.getLatitude());
         timestamp.setLongitude(location.getLongitude());
+        timestamp.setAltitude(location.getAltitude());
 
         mHikeRoute.addTimestamp(timestamp);
 

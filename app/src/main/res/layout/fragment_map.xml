@@ -19,11 +19,11 @@
             android:layout_weight="1"
             >
 
-            <TextView
+            <Chronometer
+                android:id="@+id/hike_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/h_white"
-                android:text="1:53"
                 android:textSize="@dimen/text_size_huge"
                 android:layout_gravity="center"
                 />
