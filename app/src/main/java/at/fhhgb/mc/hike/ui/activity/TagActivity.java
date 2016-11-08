@@ -28,6 +28,7 @@ public class TagActivity extends GlobalActivity {
         mTagFragment = TagFragment.newInstance();
         addFragment(mTagFragment, false);
         changeMenu(R.menu.tag_menu);
+        setTitle("");
     }
 
     @Override

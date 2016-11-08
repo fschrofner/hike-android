@@ -13,4 +13,8 @@
     <!-- text size -->
     <dimen name="text_size_huge">60sp</dimen>
     <dimen name="text_size_button">18sp</dimen>
+    <dimen name="text_size_title">22sp</dimen>
+
+    <!-- radius -->
+    <dimen name="round_edit_text_radius">8dp</dimen>
 </resources>

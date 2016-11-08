@@ -1,16 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/h_light_black">
 
-    <EditText
-        android:id="@+id/tag_description"
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/height_normal"
-        android:layout_centerInParent="true"
-        android:hint="Description"
-        android:layout_marginStart="@dimen/margin_normal"
-        android:layout_marginEnd="@dimen/margin_normal"/>
+        android:layout_height="wrap_content"
+        >
 
-</RelativeLayout>
+        <EditText
+            android:id="@+id/tag_title"
+            android:layout_marginTop="@dimen/margin_normal"
+            android:background="@drawable/gray_round_background"
+            android:textColor="@color/h_white"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/height_normal"
+            android:hint="Title"
+            android:minLines="1"
+            android:maxLines="1"
+            android:textColorHint="@color/h_light_gray"
+            android:textStyle="bold"
+            android:textSize="@dimen/text_size_title"
+            android:padding="@dimen/margin_small"
+            android:layout_marginStart="@dimen/margin_normal"
+            android:layout_marginEnd="@dimen/margin_normal"/>
+
+        <ImageButton
+            android:id="@+id/tag_photo"
+            android:layout_width="match_parent"
+            android:layout_height="130dp"
+            android:layout_below="@id/tag_title"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/margin_normal"
+            android:layout_marginStart="@dimen/margin_normal"
+            android:layout_marginEnd="@dimen/margin_normal"
+            android:background="@drawable/black_round_background"
+            android:src="@drawable/ic_add_a_photo_white_48dp"/>
+
+        <EditText
+            android:id="@+id/tag_description"
+            android:layout_marginTop="@dimen/margin_normal"
+            android:layout_below="@id/tag_photo"
+            android:background="@drawable/gray_round_background"
+            android:textColor="@color/h_white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:hint="Description"
+            android:minLines="8"
+            android:maxLines="8"
+            android:textColorHint="@color/h_light_gray"
+            android:padding="@dimen/margin_small"
+            android:layout_marginStart="@dimen/margin_normal"
+            android:layout_marginEnd="@dimen/margin_normal"/>
+
+    </RelativeLayout>
+
+</ScrollView>

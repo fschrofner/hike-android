@@ -2,8 +2,11 @@
 <resources>
     <color name="colorPrimary">@color/h_light_black</color>
     <color name="colorPrimaryDark">@color/h_light_black</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent">#EBEBEB</color>
     <color name="h_light_black">#21252B</color>
+    <color name="h_black">#181C1F</color>
+    <color name="h_gray">#39404A</color>
+    <color name="h_light_gray">#525D6B</color>
     <color name="h_white">#FFFFFF</color>
     <color name="h_lighter_green">#64AF60</color>
     <color name="h_light_green">#5A9E57</color>
