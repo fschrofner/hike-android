@@ -108,14 +108,16 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone"
-            android:text="Start"/>
+            android:text="Start"
+            style="@style/StartButton"/>
 
         <Button
             android:id="@+id/stop_tracking_button"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="visible"
-            android:text="Stop"/>
+            android:text="Stop"
+            style="@style/StopButton"/>
 
     </RelativeLayout>
 

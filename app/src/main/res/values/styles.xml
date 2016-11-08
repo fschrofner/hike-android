@@ -8,4 +8,17 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="BorderlessButton" parent="android:Widget.Material.Button.Borderless.Colored">
+        <item name="android:textColor">@color/h_white</item>
+        <item name="android:textSize">@dimen/text_size_button</item>
+    </style>
+
+    <style name="StartButton" parent="BorderlessButton">
+        <item name="android:background">@drawable/button_start_background</item>
+    </style>
+
+    <style name="StopButton" parent="BorderlessButton">
+        <item name="android:background">@drawable/button_stop_background</item>
+    </style>
+
 </resources>
