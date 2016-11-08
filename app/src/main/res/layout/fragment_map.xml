@@ -2,7 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="match_parent"
+                android:animateLayoutChanges="true">
 
     <LinearLayout
         android:id="@+id/hike_stats_holder"
@@ -11,6 +12,7 @@
         android:layout_height="@dimen/card_height_big"
         android:orientation="vertical"
         android:background="@color/h_light_black"
+        android:visibility="gone"
         >
 
         <FrameLayout
@@ -58,6 +60,7 @@
                         android:layout_gravity="center"/>
 
                     <TextView
+                        android:id="@+id/hike_distance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/h_white"
@@ -78,6 +81,7 @@
                         android:layout_gravity="center"/>
 
                     <TextView
+                        android:id="@+id/hike_elevation"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/h_white"

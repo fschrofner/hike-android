@@ -24,10 +24,12 @@ import at.fhhgb.mc.hike.app.AppClass;
 import at.fhhgb.mc.hike.app.Database;
 import at.fhhgb.mc.hike.model.database.DatabaseException;
 import at.fhhgb.mc.hike.model.database.HikeRoute;
+import at.fhhgb.mc.hike.model.database.HikeStats;
 import at.fhhgb.mc.hike.model.database.HikeTag;
 import at.fhhgb.mc.hike.model.database.HikeTimestamp;
 import at.fhhgb.mc.hike.model.events.LocationUpdateEvent;
 import at.fhhgb.mc.hike.model.events.StartHikeTrackingEvent;
+import at.fhhgb.mc.hike.model.events.StatsUpdateEvent;
 import at.fhhgb.mc.hike.model.events.StopHikeTrackingEvent;
 import at.fhhgb.mc.hike.model.events.TagSavedEvent;
 import at.fhhgb.mc.hike.ui.activity.MainActivity;
@@ -156,6 +158,7 @@ public class LocationService extends Service implements LocationListener {
         timestamp.setAltitude(location.getAltitude());
 
         mHikeRoute.addTimestamp(timestamp);
+        sendStatsUpdate(mHikeRoute.getStats());
 
         try {
             Database.saveHikeRouteInDatabase(mHikeRoute);
@@ -166,6 +169,10 @@ public class LocationService extends Service implements LocationListener {
 
     private void sendLocationUpdate(Location location){
         EventBus.getDefault().post(new LocationUpdateEvent(location));
+    }
+
+    private void sendStatsUpdate(HikeStats stats){
+        EventBus.getDefault().post(new StatsUpdateEvent(stats));
     }
 
     @Override

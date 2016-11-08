@@ -11,6 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Chronometer;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -37,9 +39,11 @@ import at.fhhgb.mc.hike.app.Database;
 import at.fhhgb.mc.hike.app.Helper;
 import at.fhhgb.mc.hike.model.database.DatabaseException;
 import at.fhhgb.mc.hike.model.database.HikeRoute;
+import at.fhhgb.mc.hike.model.database.HikeStats;
 import at.fhhgb.mc.hike.model.database.HikeTag;
 import at.fhhgb.mc.hike.model.events.LocationUpdateEvent;
 import at.fhhgb.mc.hike.model.events.StartHikeTrackingEvent;
+import at.fhhgb.mc.hike.model.events.StatsUpdateEvent;
 import at.fhhgb.mc.hike.model.events.StopHikeTrackingEvent;
 import at.fhhgb.mc.hike.model.events.TagSavedEvent;
 import at.fhhgb.mc.hike.service.LocationService;
@@ -71,6 +75,15 @@ public class MapFragment extends GlobalFragment {
 
     @BindView(R.id.hike_time)
     Chronometer mHikeTime;
+
+    @BindView(R.id.hike_distance)
+    TextView mHikeDistance;
+
+    @BindView(R.id.hike_elevation)
+    TextView mHikeElevation;
+
+    @BindView(R.id.hike_stats_holder)
+    LinearLayout mHikeStats;
 
     MyLocationNewOverlay mLocationOverlay;
 
@@ -162,6 +175,7 @@ public class MapFragment extends GlobalFragment {
         mPath = new ArrayList<>();
         mTags = new ArrayList<>();
         showStartButton();
+        hideHikeStats();
         mMapView.invalidate();
     }
 
@@ -175,6 +189,7 @@ public class MapFragment extends GlobalFragment {
             public void onClick(View view) {
                 clearMap();
                 showStopButton();
+                showHikeStats();
                 getGlobalActivity().changeMenu(R.menu.hike_menu);
                 mHikeUniqueId = Helper.generateUniqueId();
                 mHikeTime.setBase(SystemClock.elapsedRealtime());
@@ -199,6 +214,14 @@ public class MapFragment extends GlobalFragment {
                 mHikeTime.stop();
             }
         });
+    }
+
+    private void showHikeStats(){
+        mHikeStats.setVisibility(View.VISIBLE);
+    }
+
+    private void hideHikeStats(){
+        mHikeStats.setVisibility(View.GONE);
     }
 
     private void clearMap(){
@@ -272,6 +295,14 @@ public class MapFragment extends GlobalFragment {
 
         //TODO: don't recreate the overlay all the time, just update it
         redrawEverything(mMapView, PATH_COLOR);
+    }
+
+    @Subscribe
+    public void onStatsUpdated(StatsUpdateEvent event){
+        HikeStats stats = event.getHikeStats();
+        //TODO: format correctly
+        mHikeDistance.setText(stats.getTotalDistanceMeters() + " m");
+        mHikeElevation.setText(stats.getPositiveElevationChangeMeters() + " m");
     }
 
     private void showUserMarker(GeoPoint geoPoint){
