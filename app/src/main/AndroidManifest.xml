@@ -26,9 +26,19 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.activity.TagActivity">
-
+        <activity android:name=".ui.activity.TagActivity"
+                  android:screenOrientation="portrait">
         </activity>
+
+        <activity android:name=".ui.activity.ImageActivity"
+                  android:configChanges="orientation|screenSize|keyboardHidden"
+                  android:screenOrientation="portrait"
+                  android:theme="@style/AppTheme.NoActionBar">>
+        </activity>
+
+        <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
+                  android:screenOrientation="portrait"
+                  android:theme="@style/Base.Theme.AppCompat"/>
 
         <service android:name=".service.LocationService"/>
     </application>

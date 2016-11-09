@@ -8,6 +8,12 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="AppTheme.NoActionBar" parent="AppTheme">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:background">@color/transparentActivityBackground</item>
+    </style>
+
     <style name="BorderlessButton" parent="android:Widget.Material.Button.Borderless.Colored">
         <item name="android:textColor">@color/h_white</item>
         <item name="android:textSize">@dimen/text_size_button</item>

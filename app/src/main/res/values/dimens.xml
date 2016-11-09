@@ -5,7 +5,9 @@
     <dimen name="height_normal">60dp</dimen>
     <dimen name="margin_normal">30dp</dimen>
     <dimen name="margin_normal_2">20dp</dimen>
+    <dimen name="margin_normal_3">15dp</dimen>
     <dimen name="margin_small">10dp</dimen>
+    <dimen name="margin_small_2">5dp</dimen>
 
     <!-- height -->
     <dimen name="card_height_big">200dp</dimen>

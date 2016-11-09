@@ -9,7 +9,9 @@ import java.util.Map;
  */
 
 public class HikeTag implements Serializable {
+    private String mTitle;
     private String mDescription;
+    private String mPhoto;
     private double mLongitude;
     private double mLatitude;
 
@@ -25,6 +27,14 @@ public class HikeTag implements Serializable {
         mLatitude = latitude;
     }
 
+    public void setTitle(String title) {
+        mTitle = title;
+    }
+
+    public void setPhoto(String photo) {
+        mPhoto = photo;
+    }
+
     public String getDescription() {
         return mDescription;
     }
@@ -35,6 +45,14 @@ public class HikeTag implements Serializable {
 
     public double getLatitude() {
         return mLatitude;
+    }
+
+    public String getTitle() {
+        return mTitle;
+    }
+
+    public String getPhoto() {
+        return mPhoto;
     }
 
     public Map<String, Object> toKeyValueMap(){

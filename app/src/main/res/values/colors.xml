@@ -3,6 +3,7 @@
     <color name="colorPrimary">@color/h_light_black</color>
     <color name="colorPrimaryDark">@color/h_light_black</color>
     <color name="colorAccent">#EBEBEB</color>
+    <color name="h_pitch_black">#000000</color>
     <color name="h_light_black">#21252B</color>
     <color name="h_black">#181C1F</color>
     <color name="h_gray">#39404A</color>
@@ -12,4 +13,6 @@
     <color name="h_light_green">#5A9E57</color>
     <color name="h_lighter_red">#C36161</color>
     <color name="h_light_red">#AD5656</color>
+
+    <color name="transparentActivityBackground">#5a000000</color>
 </resources>
