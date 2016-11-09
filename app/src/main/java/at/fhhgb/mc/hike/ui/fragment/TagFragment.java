@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.view.LayoutInflater;
@@ -24,6 +25,7 @@ import java.io.File;
 
 import at.fhhgb.mc.hike.R;
 import at.fhhgb.mc.hike.model.database.HikeTag;
+import at.fhhgb.mc.hike.ui.activity.ImageActivity;
 import at.flosch.logwrap.Log;
 import butterknife.BindView;
 
@@ -41,6 +43,9 @@ public class TagFragment extends GlobalFragment {
 
     @BindView(R.id.tag_photo)
     ImageButton mTagPhoto;
+
+    @BindView(R.id.tag_clear_photo)
+    ImageButton mClearPhoto;
 
     public String mPhoto;
 
@@ -68,10 +73,18 @@ public class TagFragment extends GlobalFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "on create view called");
         setView(R.layout.fragment_tag, inflater, container);
+
         mTagPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showPhotoPicker();
+            }
+        });
+
+        mClearPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clearPhotoFromButton();
             }
         });
 
@@ -84,6 +97,18 @@ public class TagFragment extends GlobalFragment {
         return mRootView;
     }
 
+    private void clearPhotoFromButton(){
+        mTagPhoto.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_add_a_photo_white_48dp, null));
+        mClearPhoto.setVisibility(View.GONE);
+
+        mTagPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showPhotoPicker();
+            }
+        });
+    }
+
     private void loadPhotoIntoButton(){
         StringSignature signature = new StringSignature(String.valueOf(System.currentTimeMillis()));
         Glide.with(getContext()).load(new File(mPhoto)).asBitmap().signature(signature).centerCrop().into(new BitmapImageViewTarget(mTagPhoto){
@@ -94,6 +119,17 @@ public class TagFragment extends GlobalFragment {
                 //circularBitmapDrawable.setCircular(true);
                 circularBitmapDrawable.setCornerRadius(getResources().getDimension(R.dimen.round_edit_text_radius));
                 mTagPhoto.setImageDrawable(circularBitmapDrawable);
+            }
+        });
+
+        mClearPhoto.setVisibility(View.VISIBLE);
+
+        mTagPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getGlobalActivity(), ImageActivity.class);
+                intent.putExtra(ImageActivity.IMAGE_EXTRA, mPhoto);
+                startActivity(intent);
             }
         });
     }
