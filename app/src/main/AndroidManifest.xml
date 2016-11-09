@@ -27,8 +27,10 @@
         </activity>
 
         <activity android:name=".ui.activity.TagActivity">
-
         </activity>
+
+        <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
+                  android:theme="@style/Base.Theme.AppCompat"/>
 
         <service android:name=".service.LocationService"/>
     </application>
