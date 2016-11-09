@@ -66,6 +66,7 @@ public class HikeTag implements Serializable {
 
         //TODO: Check type == image
         if(false){
+            //use the uri from FirebaseAdapter.uploadImageAndGetUri for this
             attributes.put("image_src","");
         }
         //TODO: Check type == paragraph

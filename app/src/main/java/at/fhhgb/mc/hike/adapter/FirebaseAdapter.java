@@ -3,14 +3,19 @@ package at.fhhgb.mc.hike.adapter;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.net.Uri;
 import android.text.InputType;
 import android.widget.EditText;
 
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import java.io.InputStream;
 import java.util.Map;
 
 import at.fhhgb.mc.hike.model.database.HikeRoute;
@@ -22,6 +27,7 @@ public class FirebaseAdapter {
 
     private DatabaseReference dbRef;
     private FirebaseAuth auth;
+    private StorageReference storageRef;
 
     private static FirebaseAdapter instance;
 
@@ -36,6 +42,7 @@ public class FirebaseAdapter {
         auth = FirebaseAuth.getInstance();
         auth.signInAnonymously();
         dbRef = FirebaseDatabase.getInstance().getReference();
+        storageRef = FirebaseStorage.getInstance().getReferenceFromUrl("gs://hiking-journal.appspot.com");
     }
 
     public boolean uploadHike(HikeRoute hike) {
@@ -58,6 +65,12 @@ public class FirebaseAdapter {
 
         //TODO: Upload Images
         return true;
+    }
+
+    public Task<Uri> uploadImageAndGetUri(String hikeId, String fileName, InputStream stream){
+        StorageReference img = storageRef.child("hikes").child(hikeId).child(fileName);
+        img.putStream(stream);
+        return img.getDownloadUrl();
     }
 
     /**
