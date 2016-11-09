@@ -23,7 +23,6 @@ public class MainActivity extends  GlobalActivity{
     private final String TAG = MainActivity.class.getSimpleName();
     private final static int LOCATION_PERMISSION_REQUEST_CODE = 4242;
     private final static int EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 4422;
-    private static final int SIGN_IN_REQUEST_CODE = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,14 +49,6 @@ public class MainActivity extends  GlobalActivity{
         }
 
         tryToShowMapFragment();
-
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        if (auth.getCurrentUser() == null) {
-            startActivityForResult(
-                // Get an instance of AuthUI based on the default app
-                AuthUI.getInstance().createSignInIntentBuilder().build(),
-                SIGN_IN_REQUEST_CODE);
-        }
     }
 
     @Override
@@ -112,26 +103,5 @@ public class MainActivity extends  GlobalActivity{
         }
 
         tryToShowMapFragment();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        //TODO: Maybe do something with the response
-        if(requestCode==SIGN_IN_REQUEST_CODE){
-            if (resultCode == RESULT_OK) {
-            }
-
-            // Sign in canceled
-            if (resultCode == RESULT_CANCELED) {
-            }
-
-            // No network
-            if (resultCode == ResultCodes.RESULT_NO_NETWORK) {
-
-            }
-        }
-
-        super.onActivityResult(requestCode, resultCode, data);
     }
 }
