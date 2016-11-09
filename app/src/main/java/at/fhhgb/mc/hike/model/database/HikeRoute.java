@@ -5,10 +5,12 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.osmdroid.util.GeoPoint;
-import org.osmdroid.util.LocationUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Florian Schrofner
@@ -17,6 +19,7 @@ import java.util.ArrayList;
 public class HikeRoute implements Serializable {
     final static String TAG = HikeRoute.class.getSimpleName();
 
+    private String mFirebaseId;
     long mUniqueId;
     ArrayList<HikeTimestamp> mPath;
     ArrayList<HikeTag> mTags;
@@ -106,4 +109,38 @@ public class HikeRoute implements Serializable {
         }
         return path;
     }
+
+
+    public Map<String, Object> toKeyValueMap(){
+        Map<String, Object> map = new HashMap<String, Object>();
+        //TODO: Define title
+        map.put("title","");
+        map.put("is_completed",mCompleted);
+        map.put("sport_type_id",1); //Will always be 1 (=hiking)
+        map.put("start_date",getStartTime());
+        map.put("gps_trace",getPath().stream().map(t->t.toKeyValueMap()));
+        map.put("tags",getTags().stream().map(t->t.toKeyValueMap()));
+        Map<String, Object> summary = mHikeStats.toKeyValueMap();
+        double maxElevation = 0;
+        Optional<HikeTimestamp> maxAltTimestamp = getPath().stream().max((a, b) -> Double.compare(a.getAltitude(), b.getAltitude()));
+        if(maxAltTimestamp.isPresent()) {
+            maxElevation = maxAltTimestamp.get().getAltitude();
+        }
+        summary.put("max_elevation", maxElevation);
+        map.put("summary",summary);
+        return map;
+    }
+
+    public String getmFirebaseId() {
+        return mFirebaseId;
+    }
+
+    public void setmFirebaseId(String mFirebaseId) {
+        this.mFirebaseId = mFirebaseId;
+    }
+
+    public boolean hasFirebaseId(){
+        return mFirebaseId !=null;
+    }
+
 }

@@ -1,6 +1,9 @@
 package at.fhhgb.mc.hike.model.database;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Florian Schrofner
@@ -42,5 +45,14 @@ public class HikeTimestamp implements Serializable {
 
     public void setAltitude(double altitude) {
         mAltitude = altitude;
+    }
+
+    public Map<String, Object> toKeyValueMap(){
+        Map<String,Object> map = new HashMap<>();
+        map.put("lon",getLongitude());
+        map.put("lat",getLatitude());
+        map.put("elevation",getAltitude());
+        map.put("time",getTime());
+        return map;
     }
 }

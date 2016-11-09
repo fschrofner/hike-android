@@ -1,5 +1,8 @@
 package at.fhhgb.mc.hike.model.database;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Florian Schrofner
  */
@@ -49,4 +52,15 @@ public class HikeStats {
             mNegativeElevationChangeMeters += Math.abs(meters);
         }
     }
+
+    public Map<String, Object> toKeyValueMap(){
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("distance",getTotalDistanceMeters());
+        map.put("duration",getTotalTimeSeconds());
+        map.put("elevation_gain",getPositiveElevationChangeMeters());
+        map.put("elevation_loss",getNegativeElevationChangeMeters());
+
+        return map;
+    }
+
 }
