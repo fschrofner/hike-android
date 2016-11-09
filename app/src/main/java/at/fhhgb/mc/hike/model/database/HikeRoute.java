@@ -8,9 +8,11 @@ import org.osmdroid.util.GeoPoint;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * @author Florian Schrofner
@@ -118,11 +120,26 @@ public class HikeRoute implements Serializable {
         map.put("is_completed",mCompleted);
         map.put("sport_type_id",1); //Will always be 1 (=hiking)
         map.put("start_date",getStartTime());
-        map.put("gps_trace",getPath().stream().map(t->t.toKeyValueMap()));
-        map.put("tags",getTags().stream().map(t->t.toKeyValueMap()));
+        map.put("gps_trace",getPath().stream().map(new Function<HikeTimestamp, Object>() {
+            @Override
+            public Object apply(HikeTimestamp hikeTimestamp) {
+                return hikeTimestamp.toKeyValueMap();
+            }
+        }));
+        map.put("tags",getTags().stream().map(new Function<HikeTag, Object>() {
+            @Override
+            public Object apply(HikeTag hikeTag) {
+                return hikeTag.toKeyValueMap();
+            }
+        }));
         Map<String, Object> summary = mHikeStats.toKeyValueMap();
         double maxElevation = 0;
-        Optional<HikeTimestamp> maxAltTimestamp = getPath().stream().max((a, b) -> Double.compare(a.getAltitude(), b.getAltitude()));
+        Optional<HikeTimestamp> maxAltTimestamp = getPath().stream().max(new Comparator<HikeTimestamp>() {
+            @Override
+            public int compare(HikeTimestamp a, HikeTimestamp b) {
+                return Double.compare(a.getAltitude(), b.getAltitude());
+            }
+        });
         if(maxAltTimestamp.isPresent()) {
             maxElevation = maxAltTimestamp.get().getAltitude();
         }

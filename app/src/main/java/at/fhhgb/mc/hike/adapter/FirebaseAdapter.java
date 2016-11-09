@@ -72,13 +72,19 @@ public class FirebaseAdapter {
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         builder.setView(input);
 
-        builder.setPositiveButton("OK", (d, w) -> {
-            UserProfileChangeRequest.Builder udBuilder = new UserProfileChangeRequest.Builder();
-            udBuilder.setDisplayName(input.getText().toString());
-            auth.getCurrentUser().updateProfile(udBuilder.build());
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                UserProfileChangeRequest.Builder udBuilder = new UserProfileChangeRequest.Builder();
+                udBuilder.setDisplayName(input.getText().toString());
+                auth.getCurrentUser().updateProfile(udBuilder.build());
+            }
         });
-        builder.setNegativeButton("Cancel", (d, w) -> {
-            d.cancel();
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
         });
 
         builder.show();
