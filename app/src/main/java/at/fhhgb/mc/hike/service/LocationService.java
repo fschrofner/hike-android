@@ -129,7 +129,7 @@ public class LocationService extends Service implements LocationListener {
 
             Notification notification = new NotificationCompat.Builder(this)
                     .setTicker(getString(R.string.notification_title))
-                    .setSmallIcon(android.R.drawable.ic_menu_report_image)
+                    .setSmallIcon(R.drawable.ic_notification)
                     .setContentTitle(getString(R.string.notification_title))
                     .setContentText(getString(R.string.notification_text))
                     .setContentIntent(pendingIntent)
