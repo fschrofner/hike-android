@@ -1,10 +1,15 @@
 package at.fhhgb.mc.hike.ui.fragment;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
@@ -14,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
@@ -54,6 +60,7 @@ public class TagFragment extends GlobalFragment {
     private String mTitle;
     private String mDescription;
     private String mPhoto;
+    private Uri mPhotoUri;
 
     final static String TAG = TagFragment.class.getSimpleName();
 
@@ -175,16 +182,34 @@ public class TagFragment extends GlobalFragment {
         });
     }
 
+    private String getRealPathFromURI(Uri contentURI) {
+        String result;
+        Cursor cursor = getContext().getContentResolver().query(contentURI, null, null, null, null);
+        if (cursor == null) { // Source is Dropbox or other similar local file path
+            result = contentURI.getPath();
+        } else {
+            cursor.moveToFirst();
+            int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+            result = cursor.getString(idx);
+            cursor.close();
+        }
+        return result;
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // handle result of pick image chooser
         if (requestCode == REQUEST_CODE_IMAGE_CHOOSER && resultCode == Activity.RESULT_OK) {
-            //TODO: load with glide
             //TODO: could crop picture here
-            Uri imageUri = CropImage.getPickImageResultUri(getContext(), data);
-            Log.d(TAG, "image path: " + imageUri.getPath());
-            mPhoto = imageUri.getPath();
-            loadPhotoIntoButton();
+            mPhotoUri = CropImage.getPickImageResultUri(getContext(), data);
+            Log.d(TAG, "image path: " + getRealPathFromURI(mPhotoUri));
+
+            if (CropImage.isReadExternalStoragePermissionsRequired(getContext(), mPhotoUri)) {
+                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},  CropImage.PICK_IMAGE_PERMISSIONS_REQUEST_CODE);
+            } else {
+                mPhoto = getRealPathFromURI(mPhotoUri);
+                loadPhotoIntoButton();
+            }
             //CropImage.activity(imageUri).setAspectRatio(1,1).start(getContext(), this);
         } else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             //CropImage.ActivityResult result = CropImage.getActivityResult(data);
@@ -194,6 +219,21 @@ public class TagFragment extends GlobalFragment {
                 //showImage();
                 //mPhoto = resultUri.getPath();
             //}
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == CropImage.PICK_IMAGE_PERMISSIONS_REQUEST_CODE) {
+            if (mPhotoUri != null && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // required permissions granted, start crop image activity
+                mPhoto = getRealPathFromURI(mPhotoUri);
+                loadPhotoIntoButton();
+            } else {
+                Toast.makeText(getContext(), "Cancelling, required permissions are not granted", Toast.LENGTH_LONG).show();
+            }
         }
     }
 }
