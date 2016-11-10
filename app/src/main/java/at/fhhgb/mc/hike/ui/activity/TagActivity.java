@@ -25,10 +25,14 @@ public class TagActivity extends GlobalActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setView(R.layout.activity_tag);
-        mTagFragment = TagFragment.newInstance();
-        addFragment(mTagFragment, false);
         changeMenu(R.menu.tag_menu);
         setTitle("");
+
+        //if there is a saved instance state, the fragment will be recreated
+        if(savedInstanceState == null){
+            mTagFragment = TagFragment.newInstance();
+            addFragment(mTagFragment, false);
+        }
     }
 
     @Override

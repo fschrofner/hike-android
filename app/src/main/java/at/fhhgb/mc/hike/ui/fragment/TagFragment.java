@@ -35,6 +35,10 @@ import butterknife.BindView;
 
 public class TagFragment extends GlobalFragment {
     final static int REQUEST_CODE_IMAGE_CHOOSER = 22352;
+    final static String EXTRA_PHOTO = "extra.photo";
+    final static String EXTRA_TITLE = "extra.title";
+    final static String EXTRA_DESCRIPTION = "extra.desc";
+
     @BindView(R.id.tag_title)
     EditText mTagTitle;
 
@@ -47,12 +51,48 @@ public class TagFragment extends GlobalFragment {
     @BindView(R.id.tag_clear_photo)
     ImageButton mClearPhoto;
 
-    public String mPhoto;
+    private String mTitle;
+    private String mDescription;
+    private String mPhoto;
 
     final static String TAG = TagFragment.class.getSimpleName();
 
     public static TagFragment newInstance(){
         return new TagFragment();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(EXTRA_PHOTO, mPhoto);
+        outState.putString(EXTRA_TITLE, mTagTitle.getText().toString());
+        outState.putString(EXTRA_DESCRIPTION, mTagDescription.getText().toString());
+        Log.d(TAG, "saved state");
+    }
+
+    private void recreateInstanceState(@Nullable Bundle savedInstanceState){
+        //recreate state
+        if(savedInstanceState != null){
+            Log.d(TAG, "saved state found, recreating..");
+            String title = savedInstanceState.getString(EXTRA_TITLE);
+            String desc = savedInstanceState.getString(EXTRA_DESCRIPTION);
+            String photo = savedInstanceState.getString(EXTRA_PHOTO);
+
+            Log.d(TAG, "saved title: " + title);
+            Log.d(TAG, "saved desc: " + desc);
+            Log.d(TAG, "saved photo: " + photo);
+
+            if(title != null) mTagTitle.setText(title);
+            if(desc != null) mTagDescription.setText(desc);
+
+            if(photo != null){
+                mPhoto = photo;
+                loadPhotoIntoButton();
+            }
+
+        } else {
+            Log.d(TAG, "no saved state found");
+        }
     }
 
     public HikeTag getTagData(){
@@ -68,11 +108,19 @@ public class TagFragment extends GlobalFragment {
         startActivityForResult(intent, REQUEST_CODE_IMAGE_CHOOSER);
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "on create view called");
         setView(R.layout.fragment_tag, inflater, container);
+
+        recreateInstanceState(savedInstanceState);
 
         mTagPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,7 +128,6 @@ public class TagFragment extends GlobalFragment {
                 showPhotoPicker();
             }
         });
-
         mClearPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -88,12 +135,6 @@ public class TagFragment extends GlobalFragment {
             }
         });
 
-        if(mPhoto != null){
-            loadPhotoIntoButton();
-        } else {
-            Log.d(TAG, "no photo selected before");
-            //TODO: save mPhoto before fragment gets redrawn
-        }
         return mRootView;
     }
 
