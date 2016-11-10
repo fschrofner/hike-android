@@ -24,16 +24,26 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.bumptech.glide.signature.StringSignature;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 import at.fhhgb.mc.hike.R;
+import at.fhhgb.mc.hike.adapter.FirebaseAdapter;
+import at.fhhgb.mc.hike.app.Helper;
 import at.fhhgb.mc.hike.model.database.HikeTag;
+import at.fhhgb.mc.hike.service.LocationService;
 import at.fhhgb.mc.hike.ui.activity.ImageActivity;
 import at.flosch.logwrap.Log;
 import butterknife.BindView;
+import id.zelory.compressor.Compressor;
 
 /**
  * @author Florian Schrofner

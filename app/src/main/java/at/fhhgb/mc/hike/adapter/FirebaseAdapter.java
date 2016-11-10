@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.text.InputType;
 import android.widget.EditText;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserProfileChangeRequest;
@@ -14,6 +16,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.InputStream;
 import java.util.Map;
@@ -67,14 +70,13 @@ public class FirebaseAdapter {
         return true;
     }
 
-    public Task<Uri> uploadImageAndGetUri(String hikeId, String fileName, InputStream stream){
+    public void uploadImageAndGetUri(String hikeId, String fileName, InputStream stream, OnSuccessListener<UploadTask.TaskSnapshot> successListener, OnFailureListener onFailureListener){
         StorageReference img = storageRef.child("hikes").child(hikeId).child(fileName);
-        img.putStream(stream);
-        return img.getDownloadUrl();
+        img.putStream(stream).addOnSuccessListener(successListener).addOnFailureListener(onFailureListener);
     }
 
     /**
-     * Use this method if FirebaseUI does not proivde
+     * Use this method if FirebaseUI does not provide
      * @param ctx
      */
     public void askForName(Context ctx) {

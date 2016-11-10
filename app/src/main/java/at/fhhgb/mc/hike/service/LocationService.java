@@ -10,18 +10,33 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.storage.UploadTask;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+
 import at.fhhgb.mc.hike.R;
+import at.fhhgb.mc.hike.adapter.FirebaseAdapter;
 import at.fhhgb.mc.hike.app.AppClass;
 import at.fhhgb.mc.hike.app.Database;
+import at.fhhgb.mc.hike.app.Helper;
 import at.fhhgb.mc.hike.model.database.DatabaseException;
 import at.fhhgb.mc.hike.model.database.HikeRoute;
 import at.fhhgb.mc.hike.model.database.HikeStats;
@@ -34,6 +49,7 @@ import at.fhhgb.mc.hike.model.events.StopHikeTrackingEvent;
 import at.fhhgb.mc.hike.model.events.TagSavedEvent;
 import at.fhhgb.mc.hike.ui.activity.MainActivity;
 import at.flosch.logwrap.Log;
+import id.zelory.compressor.Compressor;
 
 /**
  * @author Florian Schrofner
@@ -105,6 +121,17 @@ public class LocationService extends Service implements LocationListener {
     @Subscribe
     public void onTagSaved(TagSavedEvent event){
         HikeTag tag = event.getHikeTag();
+
+        //TODO: only save tag after url has been received
+        //upload image first
+        if(tag.getPhoto() != null && !tag.getPhoto().isEmpty()){
+            try {
+                compressAndUploadImage(tag.getPhoto());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         //TODO: save with tag
         mHikeRoute.addTag(tag);
 
@@ -173,6 +200,34 @@ public class LocationService extends Service implements LocationListener {
 
     private void sendStatsUpdate(HikeStats stats){
         EventBus.getDefault().post(new StatsUpdateEvent(stats));
+    }
+
+    private void compressAndUploadImage(String path) throws IOException {
+        File compressedImageFile = Compressor.getDefault(this).compressToFile(new File(path));
+        Log.d(TAG, "compressed image: " + compressedImageFile.getAbsolutePath());
+        //FileInputStream stream = new FileInputStream(compressedImageFile);
+        InputStream stream = getContentResolver().openInputStream(Uri.fromFile(compressedImageFile));
+
+        String uploadFileName = Helper.generateUniqueId() + ".jpeg";
+
+        Log.d(TAG, "hike id: " + mHikeUniqueId);
+        Log.d(TAG, "file name: " + uploadFileName);
+
+        OnSuccessListener successListener = new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Log.d(TAG, "uploaded image: " + taskSnapshot.getDownloadUrl());
+            }
+        };
+
+        OnFailureListener failureListener = new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(TAG, "upload failed: " + e.getMessage());
+            }
+        };
+
+        FirebaseAdapter.getInstance().uploadImageAndGetUri(String.valueOf(mHikeUniqueId), uploadFileName, stream, successListener, failureListener);
     }
 
     @Override
