@@ -2,7 +2,8 @@
 <resources>
     <array name="tagTypes">
         <item>Title</item>
-        <item>Paragraph</item>
+        <item>Text</item>
         <item>Image</item>
+        <item>POI</item>
     </array>
 </resources>

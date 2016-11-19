@@ -124,6 +124,9 @@ public class TagFragment extends GlobalFragment {
                     case 2:
                         switchToImage();
                         break;
+                    case 3:
+                        switchToPoi();
+                        break;
                 }
             }
         });
@@ -159,6 +162,10 @@ public class TagFragment extends GlobalFragment {
         mTagPhotoHolder.setVisibility(View.VISIBLE);
     }
 
+    private void switchToPoi(){
+        //TODO
+    }
+
     private void recreateInstanceState(@Nullable Bundle savedInstanceState){
         //recreate state
         if(savedInstanceState != null){
@@ -179,6 +186,8 @@ public class TagFragment extends GlobalFragment {
                 loadPhotoIntoButton();
             }
 
+            //apply tag type again
+            mTagType.setValue(mTagType.getValue());
         } else {
             Log.d(TAG, "no saved state found");
         }
