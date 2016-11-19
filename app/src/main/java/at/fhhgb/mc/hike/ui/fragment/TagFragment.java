@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -29,6 +30,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
+
+import org.honorato.multistatetogglebutton.MultiStateToggleButton;
+import org.honorato.multistatetogglebutton.ToggleButton;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -55,6 +59,9 @@ public class TagFragment extends GlobalFragment {
     final static String EXTRA_TITLE = "extra.title";
     final static String EXTRA_DESCRIPTION = "extra.desc";
 
+    @BindView(R.id.tag_type)
+    MultiStateToggleButton mTagType;
+
     @BindView(R.id.tag_title)
     EditText mTagTitle;
 
@@ -66,6 +73,9 @@ public class TagFragment extends GlobalFragment {
 
     @BindView(R.id.tag_clear_photo)
     ImageButton mClearPhoto;
+
+    @BindView(R.id.tag_photo_holder)
+    RelativeLayout mTagPhotoHolder;
 
     private String mTitle;
     private String mDescription;
@@ -85,6 +95,68 @@ public class TagFragment extends GlobalFragment {
         outState.putString(EXTRA_TITLE, mTagTitle.getText().toString());
         outState.putString(EXTRA_DESCRIPTION, mTagDescription.getText().toString());
         Log.d(TAG, "saved state");
+    }
+
+    private void setOnClickListeners(){
+        mTagPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showPhotoPicker();
+            }
+        });
+        mClearPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clearPhotoFromButton();
+            }
+        });
+
+        mTagType.setOnValueChangedListener(new ToggleButton.OnValueChangedListener() {
+            @Override
+            public void onValueChanged(int value) {
+                switch(value){
+                    case 0:
+                        switchToTitle();
+                        break;
+                    case 1:
+                        switchToParagraph();
+                        break;
+                    case 2:
+                        switchToImage();
+                        break;
+                }
+            }
+        });
+    }
+
+    private void switchToTitle(){
+        mTagPhoto.setEnabled(false);
+        mTagDescription.setEnabled(false);
+        mTagTitle.setEnabled(true);
+
+        mTagTitle.setVisibility(View.VISIBLE);
+        mTagDescription.setVisibility(View.GONE);
+        mTagPhotoHolder.setVisibility(View.GONE);
+    }
+
+    private void switchToParagraph(){
+        mTagPhoto.setEnabled(false);
+        mTagDescription.setEnabled(true);
+        mTagTitle.setEnabled(true);
+
+        mTagTitle.setVisibility(View.VISIBLE);
+        mTagDescription.setVisibility(View.VISIBLE);
+        mTagPhotoHolder.setVisibility(View.GONE);
+    }
+
+    private void switchToImage(){
+        mTagPhoto.setEnabled(true);
+        mTagDescription.setEnabled(true);
+        mTagTitle.setEnabled(true);
+
+        mTagTitle.setVisibility(View.VISIBLE);
+        mTagDescription.setVisibility(View.VISIBLE);
+        mTagPhotoHolder.setVisibility(View.VISIBLE);
     }
 
     private void recreateInstanceState(@Nullable Bundle savedInstanceState){
@@ -113,6 +185,7 @@ public class TagFragment extends GlobalFragment {
     }
 
     public HikeTag getTagData(){
+        //TODO: adapt to tag type
         HikeTag hikeTag = new HikeTag();
         hikeTag.setDescription(mTagDescription.getText().toString());
         hikeTag.setTitle(mTagTitle.getText().toString());
@@ -138,19 +211,12 @@ public class TagFragment extends GlobalFragment {
         setView(R.layout.fragment_tag, inflater, container);
 
         recreateInstanceState(savedInstanceState);
+        setOnClickListeners();
 
-        mTagPhoto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showPhotoPicker();
-            }
-        });
-        mClearPhoto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                clearPhotoFromButton();
-            }
-        });
+        //set default type, when not defined
+        if(mTagType.getValue() < 0){
+            mTagType.setValue(0);
+        }
 
         return mRootView;
     }

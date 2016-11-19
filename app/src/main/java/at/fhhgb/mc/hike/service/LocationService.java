@@ -120,6 +120,7 @@ public class LocationService extends Service implements LocationListener {
 
     @Subscribe
     public void onTagSaved(TagSavedEvent event){
+        Log.d(TAG, "on tag save event received");
         HikeTag tag = event.getHikeTag();
 
         //TODO: only save tag after url has been received

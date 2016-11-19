@@ -4,11 +4,14 @@ import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.MenuRes;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
+
+import java.util.List;
 
 import at.fhhgb.mc.hike.R;
 import at.fhhgb.mc.hike.ui.fragment.GlobalFragment;
@@ -40,6 +43,22 @@ public class GlobalActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Returns the first visible fragment found. Watch out for nested fragments!
+     */
+    public GlobalFragment getVisibleFragment(){
+        FragmentManager fragmentManager = GlobalActivity.this.getSupportFragmentManager();
+        List<Fragment> fragments = fragmentManager.getFragments();
+
+        if(fragments != null){
+            for(Fragment fragment : fragments){
+                if(fragment != null && fragment.isVisible())
+                    return (GlobalFragment) fragment;
+            }
+        }
+        return null;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -59,7 +78,6 @@ public class GlobalActivity extends AppCompatActivity {
 
     public void addFragment(@NonNull GlobalFragment fragment, boolean addToBackStack){
         FragmentTransaction transaction = mFragmentManager.beginTransaction();
-
         transaction.replace(R.id.fragment_holder, fragment, fragment.getFragmentName());
 
         if (addToBackStack) {

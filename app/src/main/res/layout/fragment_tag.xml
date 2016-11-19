@@ -3,6 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:mstb="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/h_light_black">
 
     <RelativeLayout
@@ -11,9 +13,24 @@
         android:layout_height="wrap_content"
         >
 
+        <org.honorato.multistatetogglebutton.MultiStateToggleButton
+            android:id="@+id/tag_type"
+            android:layout_marginTop="@dimen/margin_normal"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentTop="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:values="@array/tagTypes"
+            app:mstbPrimaryColor="@color/h_white"
+            app:mstbSecondaryColor="@color/h_light_gray"
+            android:layout_marginStart="@dimen/margin_normal"
+            android:layout_marginEnd="@dimen/margin_normal"
+            />
+
         <EditText
             android:id="@+id/tag_title"
             android:layout_marginTop="@dimen/margin_normal"
+            android:layout_below="@id/tag_type"
             android:background="@drawable/gray_round_background"
             android:textColor="@color/h_white"
             android:layout_width="match_parent"
@@ -75,7 +92,8 @@
             android:textColorHint="@color/h_light_gray"
             android:padding="@dimen/margin_small"
             android:layout_marginStart="@dimen/margin_normal"
-            android:layout_marginEnd="@dimen/margin_normal"/>
+            android:layout_marginEnd="@dimen/margin_normal"
+            android:layout_marginBottom="@dimen/margin_normal"/>
 
     </RelativeLayout>
 
