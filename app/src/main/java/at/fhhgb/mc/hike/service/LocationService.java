@@ -123,23 +123,23 @@ public class LocationService extends Service implements LocationListener {
         Log.d(TAG, "on tag save event received");
         HikeTag tag = event.getHikeTag();
 
-        //TODO: only save tag after url has been received
-        //upload image first
-        if(tag.getPhoto() != null && !tag.getPhoto().isEmpty()){
+        if(tag.getTagType() == HikeTag.TagType.Image){
+            //upload image first
+            if(tag.getPhoto() != null && !tag.getPhoto().isEmpty()){
+                try {
+                    compressAndUploadImage(tag);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            mHikeRoute.addTag(tag);
             try {
-                compressAndUploadImage(tag.getPhoto());
-            } catch (IOException e) {
+                Database.saveHikeRouteInDatabase(mHikeRoute);
+            } catch (DatabaseException e) {
                 e.printStackTrace();
             }
-        }
-
-        //TODO: save with tag
-        mHikeRoute.addTag(tag);
-
-        try {
-            Database.saveHikeRouteInDatabase(mHikeRoute);
-        } catch (DatabaseException e) {
-            e.printStackTrace();
+            uploadCompleteHike();
         }
     }
 
@@ -148,6 +148,16 @@ public class LocationService extends Service implements LocationListener {
             mLocationManager.removeUpdates(this);
         }
         stopForeground(true);
+        mHikeRoute.completed();
+
+        //TODO: actually the hikeroute could be cleared from the offline database
+        try {
+            Database.saveHikeRouteInDatabase(mHikeRoute);
+        } catch (DatabaseException e) {
+            e.printStackTrace();
+        }
+
+        uploadCompleteHike();
     }
 
     private void startLocationTracking() {
@@ -193,6 +203,8 @@ public class LocationService extends Service implements LocationListener {
         } catch (DatabaseException e) {
             e.printStackTrace();
         }
+
+        uploadCompleteHike();
     }
 
     private void sendLocationUpdate(Location location){
@@ -203,10 +215,15 @@ public class LocationService extends Service implements LocationListener {
         EventBus.getDefault().post(new StatsUpdateEvent(stats));
     }
 
-    private void compressAndUploadImage(String path) throws IOException {
+    private void uploadCompleteHike(){
+        Log.d(TAG, "uploading hike..");
+        FirebaseAdapter.getInstance().uploadHike(mHikeRoute);
+    }
+
+    private void compressAndUploadImage(final HikeTag tag) throws IOException {
+        String path = tag.getPhoto();
         File compressedImageFile = Compressor.getDefault(this).compressToFile(new File(path));
         Log.d(TAG, "compressed image: " + compressedImageFile.getAbsolutePath());
-        //FileInputStream stream = new FileInputStream(compressedImageFile);
         InputStream stream = getContentResolver().openInputStream(Uri.fromFile(compressedImageFile));
 
         String uploadFileName = Helper.generateUniqueId() + ".jpeg";
@@ -218,6 +235,16 @@ public class LocationService extends Service implements LocationListener {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 Log.d(TAG, "uploaded image: " + taskSnapshot.getDownloadUrl());
+                tag.setPhoto(taskSnapshot.getDownloadUrl().toString());
+                mHikeRoute.addTag(tag);
+
+                try {
+                    Database.saveHikeRouteInDatabase(mHikeRoute);
+                } catch (DatabaseException e) {
+                    e.printStackTrace();
+                }
+
+                uploadCompleteHike();
             }
         };
 

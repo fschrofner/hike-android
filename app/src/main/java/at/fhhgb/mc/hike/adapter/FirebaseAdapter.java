@@ -65,8 +65,6 @@ public class FirebaseAdapter {
         //TODO: Check if this is working
         map.put("author_name", auth.getCurrentUser().getDisplayName());
         dbRef.child("hikes").child(hike.getmFirebaseId()).setValue(map);
-
-        //TODO: Upload Images
         return true;
     }
 

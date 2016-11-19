@@ -25,29 +25,18 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.bumptech.glide.signature.StringSignature;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
 
 import org.honorato.multistatetogglebutton.MultiStateToggleButton;
 import org.honorato.multistatetogglebutton.ToggleButton;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 
 import at.fhhgb.mc.hike.R;
-import at.fhhgb.mc.hike.adapter.FirebaseAdapter;
-import at.fhhgb.mc.hike.app.Helper;
 import at.fhhgb.mc.hike.model.database.HikeTag;
-import at.fhhgb.mc.hike.service.LocationService;
 import at.fhhgb.mc.hike.ui.activity.ImageActivity;
 import at.flosch.logwrap.Log;
 import butterknife.BindView;
-import id.zelory.compressor.Compressor;
 
 /**
  * @author Florian Schrofner
@@ -81,6 +70,7 @@ public class TagFragment extends GlobalFragment {
     private String mDescription;
     private String mPhoto;
     private Uri mPhotoUri;
+    private HikeTag.TagType mType;
 
     final static String TAG = TagFragment.class.getSimpleName();
 
@@ -119,7 +109,7 @@ public class TagFragment extends GlobalFragment {
                         switchToTitle();
                         break;
                     case 1:
-                        switchToParagraph();
+                        switchToText();
                         break;
                     case 2:
                         switchToImage();
@@ -133,6 +123,8 @@ public class TagFragment extends GlobalFragment {
     }
 
     private void switchToTitle(){
+        mType = HikeTag.TagType.Title;
+
         mTagPhoto.setEnabled(false);
         mTagDescription.setEnabled(false);
         mTagTitle.setEnabled(true);
@@ -142,7 +134,9 @@ public class TagFragment extends GlobalFragment {
         mTagPhotoHolder.setVisibility(View.GONE);
     }
 
-    private void switchToParagraph(){
+    private void switchToText(){
+        mType = HikeTag.TagType.Text;
+
         mTagPhoto.setEnabled(false);
         mTagDescription.setEnabled(true);
         mTagTitle.setEnabled(true);
@@ -153,6 +147,8 @@ public class TagFragment extends GlobalFragment {
     }
 
     private void switchToImage(){
+        mType = HikeTag.TagType.Image;
+
         mTagPhoto.setEnabled(true);
         mTagDescription.setEnabled(true);
         mTagTitle.setEnabled(true);
@@ -164,6 +160,7 @@ public class TagFragment extends GlobalFragment {
 
     private void switchToPoi(){
         //TODO
+        mType = HikeTag.TagType.Poi;
     }
 
     private void recreateInstanceState(@Nullable Bundle savedInstanceState){
@@ -173,6 +170,7 @@ public class TagFragment extends GlobalFragment {
             String title = savedInstanceState.getString(EXTRA_TITLE);
             String desc = savedInstanceState.getString(EXTRA_DESCRIPTION);
             String photo = savedInstanceState.getString(EXTRA_PHOTO);
+
 
             Log.d(TAG, "saved title: " + title);
             Log.d(TAG, "saved desc: " + desc);
@@ -194,11 +192,13 @@ public class TagFragment extends GlobalFragment {
     }
 
     public HikeTag getTagData(){
-        //TODO: adapt to tag type
         HikeTag hikeTag = new HikeTag();
-        hikeTag.setDescription(mTagDescription.getText().toString());
+        hikeTag.setTagType(mType);
         hikeTag.setTitle(mTagTitle.getText().toString());
-        hikeTag.setPhoto(mPhoto);
+
+        if(mType != HikeTag.TagType.Title) hikeTag.setDescription(mTagDescription.getText().toString());
+        if(mType == HikeTag.TagType.Image) hikeTag.setPhoto(mPhoto);
+
         return hikeTag;
     }
 

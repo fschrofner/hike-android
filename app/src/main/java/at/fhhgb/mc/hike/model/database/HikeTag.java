@@ -9,6 +9,7 @@ import java.util.Map;
  */
 
 public class HikeTag implements Serializable {
+    private TagType mTagType;
     private String mTitle;
     private String mDescription;
     private String mPhoto;
@@ -35,6 +36,10 @@ public class HikeTag implements Serializable {
         mPhoto = photo;
     }
 
+    public void setTagType(TagType tagType) {
+        mTagType = tagType;
+    }
+
     public String getDescription() {
         return mDescription;
     }
@@ -53,6 +58,10 @@ public class HikeTag implements Serializable {
 
     public String getPhoto() {
         return mPhoto;
+    }
+
+    public TagType getTagType() {
+        return mTagType;
     }
 
     public Map<String, Object> toKeyValueMap(){
@@ -77,5 +86,9 @@ public class HikeTag implements Serializable {
         map.put("attributes",attributes);
 
         return map;
+    }
+
+    public enum TagType{
+        Title,Text,Image,Poi;
     }
 }
