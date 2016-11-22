@@ -11,8 +11,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
+import java8.util.Optional;
+
+import java8.util.function.Function;
+import java8.util.stream.StreamSupport;
 
 /**
  * @author Florian Schrofner
@@ -120,13 +122,15 @@ public class HikeRoute implements Serializable {
         map.put("is_completed",mCompleted);
         map.put("sport_type_id",1); //Will always be 1 (=hiking)
         map.put("start_date",getStartTime());
-        map.put("gps_trace",getPath().stream().map(new Function<HikeTimestamp, Object>() {
+
+        map.put("gps_trace", StreamSupport.stream(getPath()).map(new Function<HikeTimestamp, Object>() {
             @Override
             public Object apply(HikeTimestamp hikeTimestamp) {
                 return hikeTimestamp.toKeyValueMap();
             }
         }));
-        map.put("tags",getTags().stream().map(new Function<HikeTag, Object>() {
+
+        map.put("tags", StreamSupport.stream(getTags()).map(new Function<HikeTag, Object>() {
             @Override
             public Object apply(HikeTag hikeTag) {
                 return hikeTag.toKeyValueMap();
@@ -134,7 +138,7 @@ public class HikeRoute implements Serializable {
         }));
         Map<String, Object> summary = mHikeStats.toKeyValueMap();
         double maxElevation = 0;
-        Optional<HikeTimestamp> maxAltTimestamp = getPath().stream().max(new Comparator<HikeTimestamp>() {
+        Optional<HikeTimestamp> maxAltTimestamp = StreamSupport.stream(getPath()).max(new Comparator<HikeTimestamp>() {
             @Override
             public int compare(HikeTimestamp a, HikeTimestamp b) {
                 return Double.compare(a.getAltitude(), b.getAltitude());

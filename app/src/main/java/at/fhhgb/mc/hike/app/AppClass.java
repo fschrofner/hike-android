@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.support.multidex.MultiDexApplication;
 import android.support.v4.app.ActivityCompat;
 
 import at.fhhgb.mc.hike.model.database.DatabaseException;
@@ -12,7 +13,7 @@ import at.fhhgb.mc.hike.model.database.DatabaseException;
  * @author Florian Schrofner
  */
 
-public class AppClass extends Application {
+public class AppClass extends MultiDexApplication {
     private static AppClass mInstance;
 
     @Override

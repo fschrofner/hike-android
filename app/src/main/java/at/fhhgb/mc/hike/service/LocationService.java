@@ -217,7 +217,12 @@ public class LocationService extends Service implements LocationListener {
 
     private void uploadCompleteHike(){
         Log.d(TAG, "uploading hike..");
-        FirebaseAdapter.getInstance().uploadHike(mHikeRoute);
+        boolean success = FirebaseAdapter.getInstance().uploadHike(mHikeRoute);
+        if(success){
+            Log.d(TAG, "successfully handed over to firebase");
+        } else {
+            Log.d(TAG, "error when handing over to firebase");
+        }
     }
 
     private void compressAndUploadImage(final HikeTag tag) throws IOException {

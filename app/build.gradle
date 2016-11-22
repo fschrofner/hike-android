@@ -10,6 +10,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -18,13 +19,14 @@ android {
         }
     }
 
-    dexOptions {
-        jumboMode = true
-    }
+//    dexOptions {
+//        jumboMode = true
+//    }
 
 }
 
 dependencies {
+    compile 'com.android.support:multidex:1.0.1'
     compile fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
@@ -41,6 +43,11 @@ dependencies {
     compile 'com.alexvasilkov:gesture-views:2.1.1'
     compile 'id.zelory:compressor:1.0.3'
     compile 'org.honorato.multistatetogglebutton:multistatetogglebutton:0.2.2'
+    compile 'net.sourceforge.streamsupport:streamsupport:1.5.2'
+    compile 'net.sourceforge.streamsupport:streamsupport-cfuture:1.5.2'
+    compile 'net.sourceforge.streamsupport:streamsupport-atomic:1.5.2'
+    compile 'net.sourceforge.streamsupport:streamsupport-flow:1.5.2'
+    compile 'net.sourceforge.streamsupport:streamsupport-literal:1.5.2'
     testCompile 'junit:junit:4.12'
     compile 'com.google.firebase:firebase-core:9.8.0'
     compile 'com.google.firebase:firebase-database:9.8.0'
