@@ -15,6 +15,7 @@ public class HikeTag implements Serializable {
     private String mPhoto;
     private double mLongitude;
     private double mLatitude;
+    private long mTime;
 
     public void setDescription(String description) {
         mDescription = description;
@@ -64,25 +65,47 @@ public class HikeTag implements Serializable {
         return mTagType;
     }
 
+    private String getTagTypeString(){
+        switch(getTagType()){
+            case Title:
+                return "title";
+            case Text:
+                return "paragraph";
+            case Image:
+                return "title";
+            case Poi:
+                return "poi";
+        }
+        return "title";
+    }
+
+    public double getTime() {
+        return mTime;
+    }
+
+    public void setTime(long time) {
+        mTime = time;
+    }
+
     public Map<String, Object> toKeyValueMap(){
         Map<String, Object> map = new HashMap<String, Object>();
         //TODO: Set these values
-        map.put("type",""); //enum: header, paragraph, image, poi
-        map.put("time",0);
+        map.put("type",getTagTypeString()); //enum: header, paragraph, image, poi
+        map.put("time",getTime());
         map.put("duration",0);
         map.put("order",0);
         Map<String,Object> attributes = new HashMap<>();
 
-        //TODO: Check type == image
-        if(false){
+        if(getTagType() == TagType.Image){
             //use the uri from FirebaseAdapter.uploadImageAndGetUri for this
-            attributes.put("image_src","");
+            attributes.put("image_src", getPhoto());
         }
-        //TODO: Check type == paragraph
-        if(false){
-            attributes.put("text","");
+
+        if(getTagType() == TagType.Text || getTagType() == TagType.Image){
+            attributes.put("text", getDescription());
         }
-        attributes.put("title",mDescription);
+
+        attributes.put("title",getTitle());
         map.put("attributes",attributes);
 
         return map;

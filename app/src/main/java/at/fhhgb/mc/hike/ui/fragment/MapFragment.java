@@ -452,6 +452,8 @@ public class MapFragment extends GlobalFragment {
             EventBus.getDefault().post(new TagSavedEvent(tag));
 
             redrawEverything(mMapView, PATH_COLOR);
+        } else if(requestCode == REQUEST_CODE_CREATE_TAG){
+            Log.d(TAG, "error when creating tag!");
         }
         super.onActivityResult(requestCode, resultCode, data);
     }

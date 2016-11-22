@@ -123,6 +123,17 @@ public class LocationService extends Service implements LocationListener {
         Log.d(TAG, "on tag save event received");
         HikeTag tag = event.getHikeTag();
 
+        //adapt time to nearest gps_trace
+        tag.setTime(mHikeRoute.getLastTimeStamp().getTime());
+
+        mHikeRoute.addTag(tag);
+
+        try {
+            Database.saveHikeRouteInDatabase(mHikeRoute);
+        } catch (DatabaseException e) {
+            e.printStackTrace();
+        }
+
         if(tag.getTagType() == HikeTag.TagType.Image){
             //upload image first
             if(tag.getPhoto() != null && !tag.getPhoto().isEmpty()){
@@ -133,12 +144,6 @@ public class LocationService extends Service implements LocationListener {
                 }
             }
         } else {
-            mHikeRoute.addTag(tag);
-            try {
-                Database.saveHikeRouteInDatabase(mHikeRoute);
-            } catch (DatabaseException e) {
-                e.printStackTrace();
-            }
             uploadCompleteHike();
         }
     }
@@ -240,6 +245,7 @@ public class LocationService extends Service implements LocationListener {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 Log.d(TAG, "uploaded image: " + taskSnapshot.getDownloadUrl());
+                mHikeRoute.deleteTag(tag);
                 tag.setPhoto(taskSnapshot.getDownloadUrl().toString());
                 mHikeRoute.addTag(tag);
 

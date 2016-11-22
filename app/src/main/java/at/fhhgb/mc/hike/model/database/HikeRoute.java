@@ -102,6 +102,21 @@ public class HikeRoute implements Serializable {
         getTags().add(tag);
     }
 
+    public void deleteTag(HikeTag tag){
+        if(getTags().contains(tag)){
+            Log.d(TAG, "found tag to remove, removing..");
+            ArrayList tags = getTags();
+            tags.remove(tag);
+            mTags = tags;
+        } else {
+            Log.d(TAG, "did not find tag to remove");
+        }
+    }
+
+    public HikeTimestamp getLastTimeStamp(){
+        return getPath().get(getPath().size() - 1);
+    }
+
     public void completed(){
         mCompleted = true;
     }
