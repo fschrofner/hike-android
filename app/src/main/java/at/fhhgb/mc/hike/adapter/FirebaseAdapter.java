@@ -26,6 +26,7 @@ import org.json.JSONObject;
 import java.io.InputStream;
 import java.util.Map;
 import at.fhhgb.mc.hike.model.database.HikeRoute;
+import at.fhhgb.mc.hike.service.LocationService;
 
 import static android.R.attr.data;
 
@@ -64,6 +65,7 @@ public class FirebaseAdapter {
         //check if the hike already has a key, if not create one
         if (!hike.hasFirebaseId()) {
             String key = dbRef.child("hikes").push().getKey();
+            LocationService.setOngoingHikeFirebaseId(key);
             hike.setmFirebaseId(key);
         }
 

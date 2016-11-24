@@ -1,7 +1,10 @@
 <resources>
     <string name="app_name">Hike</string>
+    <string name="sharing_url">https://hiking-journal.firebaseapp.com/?id=</string>
+    <string name="share_using">Share Using</string>
     <string name="notification_title">Tracking Hike</string>
     <string name="notification_text">Hike is tracking your hike</string>
     <string name="toolbar_save">Save</string>
     <string name="toolbar_add">Add</string>
+    <string name="toolbar_share">Share</string>
 </resources>

@@ -63,10 +63,19 @@ public class LocationService extends Service implements LocationListener {
     private LocationManager mLocationManager;
     private HikeRoute mHikeRoute;
     private static Long mHikeUniqueId = null;
+    private static String mFirebaseId = null;
     private static Long mHikeStartTime = null;
 
     public static Long ongoingHikeId(){
         return mHikeUniqueId;
+    }
+
+    public static void setOngoingHikeFirebaseId(String id){
+        mFirebaseId = id;
+    }
+
+    public static String ongoingHikeFirebaseId(){
+        return mFirebaseId;
     }
 
     public static Long startTime(){
@@ -115,6 +124,7 @@ public class LocationService extends Service implements LocationListener {
         mHikeRoute = null;
         mHikeUniqueId = null;
         mHikeStartTime = null;
+        mFirebaseId = null;
         stopLocationTracking();
     }
 

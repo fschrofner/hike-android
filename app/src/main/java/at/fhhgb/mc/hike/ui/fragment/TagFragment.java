@@ -294,6 +294,7 @@ public class TagFragment extends GlobalFragment {
             } else {
                 mPhoto = getRealPathFromURI(mPhotoUri);
                 loadPhotoIntoButton();
+                mTagType.setValue(mTagType.getValue());
             }
             //CropImage.activity(imageUri).setAspectRatio(1,1).start(getContext(), this);
         } else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
@@ -316,6 +317,7 @@ public class TagFragment extends GlobalFragment {
                 // required permissions granted, start crop image activity
                 mPhoto = getRealPathFromURI(mPhotoUri);
                 loadPhotoIntoButton();
+                mTagType.setValue(mTagType.getValue());
             } else {
                 Toast.makeText(getContext(), "Cancelling, required permissions are not granted", Toast.LENGTH_LONG).show();
             }

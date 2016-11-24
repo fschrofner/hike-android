@@ -6,4 +6,10 @@
           app:showAsAction="always"
           android:title="@string/toolbar_add"
         ></item>
+
+    <item android:id="@+id/menu_share"
+          android:icon="@drawable/ic_share_white_24dp"
+          app:showAsAction="always"
+          android:title="@string/toolbar_share"
+        ></item>
 </menu>

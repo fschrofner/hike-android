@@ -39,6 +39,8 @@ public class TagActivity extends GlobalActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == R.id.menu_save) {
+            if(mTagFragment == null) mTagFragment = (TagFragment) getVisibleFragment();
+
             if(mTagFragment != null){
                 Log.d(TAG, "sending data from tag fragment");
                 Intent data = new Intent();

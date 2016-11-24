@@ -452,6 +452,12 @@ public class MapFragment extends GlobalFragment {
             Intent intent = new Intent(getContext(), TagActivity.class);
             startActivityForResult(intent, REQUEST_CODE_CREATE_TAG);
             return true;
+        } else if(item.getItemId() == R.id.menu_share){
+            if(LocationService.ongoingHike()){
+                String key = LocationService.ongoingHikeFirebaseId();
+                String url = getString(R.string.sharing_url) + key;
+                Helper.showShareIntent(getContext(), url);
+            }
         }
         return false;
     }
