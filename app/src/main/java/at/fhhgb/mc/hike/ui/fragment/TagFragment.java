@@ -159,7 +159,7 @@ public class TagFragment extends GlobalFragment {
     }
 
     private void switchToPoi(){
-        //TODO
+        switchToImage();
         mType = HikeTag.TagType.Poi;
     }
 
