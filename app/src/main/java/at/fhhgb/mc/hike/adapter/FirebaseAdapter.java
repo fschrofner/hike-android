@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
 import android.text.InputType;
+import android.util.Log;
 import android.widget.EditText;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -17,16 +18,22 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.gson.Gson;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.util.Map;
-
 import at.fhhgb.mc.hike.model.database.HikeRoute;
+
+import static android.R.attr.data;
 
 /**
  * Created by Niklas on 09.11.2016.
  */
 public class FirebaseAdapter {
+    final static String TAG = FirebaseAdapter.class.getSimpleName();
 
     private DatabaseReference dbRef;
     private FirebaseAuth auth;
@@ -61,10 +68,17 @@ public class FirebaseAdapter {
         }
 
         Map<String, Object> map = hike.toKeyValueMap();
+
         map.put("author_uid", auth.getCurrentUser().getUid());
         //TODO: Check if this is working
         map.put("author_name", auth.getCurrentUser().getDisplayName());
         dbRef.child("hikes").child(hike.getmFirebaseId()).setValue(map);
+
+        Gson gson = new Gson();
+        String json = gson.toJson(map);
+        Log.d(TAG, "json: " + json);
+
+        Log.d(TAG, "firebase hike id: " + hike.getmFirebaseId());
         return true;
     }
 

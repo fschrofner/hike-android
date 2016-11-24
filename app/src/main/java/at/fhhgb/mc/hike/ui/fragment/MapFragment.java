@@ -4,7 +4,9 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
+import android.support.v4.content.res.ResourcesCompat;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -340,7 +342,31 @@ public class MapFragment extends GlobalFragment {
             if(checkIfVisible(geoPoint)){
                 Marker tagMarker = new Marker(mMapView);
                 tagMarker.setPosition(geoPoint);
-                //TODO: change icon
+
+                @DrawableRes int tagIcon = R.drawable.header;
+
+                //set icon according to type
+                switch(tag.getTagType()){
+                    case Title:
+                        tagIcon = R.drawable.header;
+                        tagMarker.setTitle(tag.getTitle());
+                        break;
+                    case Text:
+                        tagIcon = R.drawable.paragraph;
+                        tagMarker.setTitle(tag.getDescription());
+                        break;
+                    case Image:
+                        tagIcon = R.drawable.image;
+                        //TODO: load image into bubble
+                        //tagMarker.setImage(ResourcesCompat.getDrawable(getResources(), tag.getPhoto(), null));
+                        break;
+                    case Poi:
+                        tagIcon = R.drawable.poi;
+                        tagMarker.setTitle(tag.getTitle());
+                        break;
+                }
+
+                tagMarker.setIcon(ResourcesCompat.getDrawable(getResources(), tagIcon, null));
                 tagMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
                 mMapView.getOverlays().add(tagMarker);
             }

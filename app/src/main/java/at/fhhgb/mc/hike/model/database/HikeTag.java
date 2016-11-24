@@ -68,11 +68,11 @@ public class HikeTag implements Serializable {
     private String getTagTypeString(){
         switch(getTagType()){
             case Title:
-                return "title";
+                return "header";
             case Text:
                 return "paragraph";
             case Image:
-                return "title";
+                return "image";
             case Poi:
                 return "poi";
         }

@@ -49,7 +49,7 @@ public class HikeStats {
         if(meters > 0){
             mPositiveElevationChangeMeters += meters;
         } else {
-            mNegativeElevationChangeMeters += Math.abs(meters);
+            mNegativeElevationChangeMeters += meters;
         }
     }
 

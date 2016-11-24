@@ -195,7 +195,7 @@ public class LocationService extends Service implements LocationListener {
 
         //save timestamp
         HikeTimestamp timestamp = new HikeTimestamp();
-        timestamp.setTime(location.getTime());
+        timestamp.setTime((location.getTime() - mHikeRoute.getStartTime())/1000);
         timestamp.setLatitude(location.getLatitude());
         timestamp.setLongitude(location.getLongitude());
         timestamp.setAltitude(location.getAltitude());
